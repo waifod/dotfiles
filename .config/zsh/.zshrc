@@ -34,4 +34,12 @@ eval "$(ssh-agent -s)"
 eval "$(fzf --zsh)"
 
 alias ctbs='clang-tidy -p ./build --color --quiet ./src/*'
-alias dotfiles='/usr/bin/git --git-dir=/Users/dumatte/.cfg/ --work-tree=/Users/dumatte'
+
+# Aliases and functions
+if [[ -n "$XDG_CONFIG_HOME" && -d "$XDG_CONFIG_HOME"/zsh ]]; then
+    source "$XDG_CONFIG_HOME"/zsh/.zsh_aliases
+    source "$XDG_CONFIG_HOME"/zsh/.zsh_functions
+else
+    source "$HOME"/.zsh_aliases
+    source "$HOME"/.zsh_functions
+fi

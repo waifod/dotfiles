@@ -1,0 +1,13 @@
+# zsh
+export ZDOTDIR="$XDG_CONFIG_HOME"/zsh
+
+# dotfiles
+export DOTFILES_HOME="$HOME"/.dotfiles
+
+# xdg-ninja
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+
+. "$HOME/.cargo/env"

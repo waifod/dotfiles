@@ -1,0 +1,90 @@
+#!/bin/zsh
+
+# Make a directory and immediately navigate to it
+function take() {
+    local DIR=$1
+    mkdir -p $DIR && cd $DIR
+}
+
+# Pipe help to the manpager if it's not done by default
+function myhelp() {
+    cmd=$1
+    if ! type "$cmd" &> /dev/null; then
+        echo "'$cmd' command not found."
+    else
+        if ! alias "$cmd" &> /dev/null; then
+            if "$@" --help &> /dev/null; then
+                IFS=' ' read -r manpager_cmd manpager_args <<< "$MANPAGER"
+                "$manpager_cmd" $manpager_args < <("$@" --help)
+            else
+                echo "'$cmd' does not support '--help'."
+            fi
+        else
+            cmd_alias=$(alias "$cmd" | sed -E "s/.*='([^']*)'.*/\1/")
+            cmd_arr=( ${(Q)${(z)cmd_alias}} )
+            help "${cmd_arr[@]}"
+        fi
+    fi
+}
+
+# Update dotfiles
+function cfg-update() {
+  MSG="Update for $(date +%d.%m.%y)" && cfg log --grep="$MSG" --oneline | grep -q . && cfg commit --all --amend --no-edit || cfg commit -m "$MSG"
+}
+
+# Delete all merged branches
+function gbda() {
+  git branch --no-color --merged | command grep -vE "^([+*]|\s*($(git_main_branch)|$(git_develop_branch))\s*$)" | command xargs git branch --delete 2>/dev/null
+}
+
+# fshow - git commit browser
+# source: https://gist.github.com/junegunn/f4fca918e937e6bf5bad
+# TODO: configure
+fshow() {
+  local out sha q
+  while out=$(
+      git log --graph --color=always \
+          --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" |
+      fzf --ansi --multi --no-sort --reverse --query="$q" --print-query); do
+    q=$(head -1 <<< "$out")
+    while read sha; do
+      [ -n "$sha" ] && git show --color=always $sha | less -R
+    done < <(sed '1d;s/^[^a-z0-9]*//;/^$/d' <<< "$out" | awk '{print $1}')
+  done
+}
+
+# TODO: test all of the below
+
+# swap() {
+#     if [ "$#" -lt 2 ]; then
+#         echo "Usage: swap [file1] [file2]"
+#         return 1
+#     fi
+
+#     if [ "$1" = "$2" ]; then
+#         echo "Error: Input files are the same."
+#         return 1
+#     fi
+
+#     local TMPFILE=tmp.$$
+#     mv "$1" $TMPFILE && mv "$2" "$1" && mv $TMPFILE "$2"
+# }
+
+# ssh-tmux() {
+#     ssh -t "$@" -- /bin/sh -c 'tmux has && tmux a || tmux'
+# }
+
+# swap() {
+#     if [ "$#" -lt 2 ]; then
+#         echo "Usage: swap [file1] [file2]"
+#         return 1
+#     fi
+
+#     if [ "$1" = "$2" ]; then
+#         echo "Error: Input files are the same."
+#         return 1
+#     fi
+
+#     local TMPFILE=tmp.$$
+#     mv "$1" $TMPFILE && mv "$2" "$1" && mv $TMPFILE "$2"
+# }
