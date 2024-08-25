@@ -12,4 +12,6 @@ export ZDOTDIR="$XDG_CONFIG_HOME"/zsh
 # dotfiles
 export DOTFILES_HOME="$HOME"/.dotfiles
 
-. "$HOME/.cargo/env"
+# locale
+export LC_ALL=en_US.UTF-8
+export LANG=$LC_ALL
