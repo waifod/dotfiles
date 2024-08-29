@@ -53,6 +53,16 @@ fshow() {
   done
 }
 
+setup-credentials() {
+  kinit
+  mwinit -s
+  ssh-add
+  ssh clouddesk -t 'kinit -f && mwinit -s -o && ssh-add'
+  ada cred update --once
+  aws codeartifact login --region us-west-2 --tool npm --domain amazon --domain-owner 149122183214 --repository shared
+  screen -S ninja -d -m nohup ninja-dev-sync
+}
+
 # TODO: test all of the below
 
 # swap() {

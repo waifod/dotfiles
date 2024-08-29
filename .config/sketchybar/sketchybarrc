@@ -22,7 +22,7 @@ sketchybar --bar position=top height=40 blur_radius=30 color=0x40000000
 # For a full list of all available item properties see:
 # https://felixkratz.github.io/SketchyBar/config/items
 
-FONT="Fira Code"
+FONT="JetBrainsMono Nerd Font"
 
 default=(
   padding_left=8
