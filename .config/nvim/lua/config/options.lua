@@ -4,3 +4,10 @@
 
 vim.g.mapleader = " "
 vim.g.localLeader = " "
+
+vim.o.expandtab = true
+vim.o.smarttab = true
+
+vim.o.relativenumber = true
+
+vim.o.colorcolumn = "120"
