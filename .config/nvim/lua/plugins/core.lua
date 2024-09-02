@@ -56,7 +56,10 @@ return {
         generic_sorter = require("telescope.sorters").get_generic_fuzzy_sorter,
         path_display = { "truncate" },
         layout_strategy = "horizontal",
-        layout_config = { prompt_position = "top", preview_cutoff = 120 },
+        layout_config = {
+          prompt_position = "top",
+          preview_cutoff = 120,
+        },
         winblend = 0,
         border = {},
         borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
