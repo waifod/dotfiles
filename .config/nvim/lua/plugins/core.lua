@@ -120,6 +120,4 @@ return {
       },
     },
   },
-
-  "mfussenegger/nvim-jdtls",
 }
