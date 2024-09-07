@@ -1,4 +1,6 @@
+# Should clean up PATH
 export PATH=/usr/local/bin/aws_completer:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/ruby/bin:/opt/homebrew/bin:/opt/homebrew/opt/scala@2.12/bin:$HOME/.toolbox/bin:$HOME/scripts:$PATH
+
 autoload bashcompinit && bashcompinit
 autoload -Uz compinit && compinit
 complete -C '/usr/local/bin/aws_completer' aws
@@ -32,8 +34,12 @@ export DEV_OVERRIDE=1
 eval "$(starship init zsh)"
 eval "$(ssh-agent -s)"
 eval "$(fzf --zsh)"
+eval "$(brew shellenv)"
 
 alias ctbs='clang-tidy -p ./build --color --quiet ./src/*'
+
+# Rust stuff - cleanup?
+. "$Home/.cargo/env"
 
 # Aliases and functions
 if [[ -n "$XDG_CONFIG_HOME" && -d "$XDG_CONFIG_HOME"/zsh ]]; then
