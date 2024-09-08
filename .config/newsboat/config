@@ -1,0 +1,23 @@
+notify-always yes
+notify-format "Newsboat: finished reload (%f unread feeds)"
+
+# TODO: recover linkhandler
+#external-url-viewer "urlscan -dc -r 'linkhandler {}'"
+
+#browser firefox
+browser "open -g -a 'Google Chrome' %u"  # For work mac
+macro , open-in-browser
+macro v set browser "setsid -f mpv --really-quiet --no-terminal" ; open-in-browser ; set browser firefox
+
+# colors
+#include /usr/share/doc/newsboat/contrib/colorschemes/gruvbox
+
+# highlights
+#highlight article "^(Title):.*$" blue default
+#highlight article "https?://[^ ]+" red default
+#highlight article "\\[image\\ [0-9]+\\]" green default
+
+# Reload config
+auto-reload yes
+reload-threads 2
+reload-time 30
