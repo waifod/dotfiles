@@ -13,9 +13,9 @@ macro v set browser "setsid -f mpv --really-quiet --no-terminal" ; open-in-brows
 #include /usr/share/doc/newsboat/contrib/colorschemes/gruvbox
 
 # highlights
-#highlight article "^(Title):.*$" blue default
-#highlight article "https?://[^ ]+" red default
-#highlight article "\\[image\\ [0-9]+\\]" green default
+highlight article "^(Title):.*$" blue default
+highlight article "https?://[^ ]+" red default
+highlight article "\\[image\\ [0-9]+\\]" green default
 
 # Reload config
 auto-reload yes
