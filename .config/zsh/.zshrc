@@ -42,6 +42,10 @@ eval "$(brew shellenv)"
 
 alias ctbs='clang-tidy -p ./build --color --quiet ./src/*'
 
+# Neovim is my default editor
+export EDITOR="nvim"
+export VISUAL="nvim"
+
 # Rust stuff - cleanup?
 . "$HOME/.cargo/env"
 
