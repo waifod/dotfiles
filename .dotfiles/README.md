@@ -7,3 +7,6 @@ Please follow [this guide](https://www.atlassian.com/git/tutorials/dotfiles).
 * [tmux](https://github.com/tmux/tmux)
 * ssh
 * [zsh](https://github.com/zsh-users/zsh)
+* bat
+* eza
+* fzf (to be added)
