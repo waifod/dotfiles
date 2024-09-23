@@ -45,6 +45,9 @@ eval "$(brew shellenv)"
 export EDITOR="nvim"
 export VISUAL="nvim"
 
+# Set bat color scheme
+export BAT_THEME="gruvbox-dark"
+
 # Aliases and functions
 if [[ -n "$XDG_CONFIG_HOME" && -d "$XDG_CONFIG_HOME"/zsh ]]; then
     source "$XDG_CONFIG_HOME"/zsh/.zsh_aliases
