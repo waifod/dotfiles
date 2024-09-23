@@ -1,9 +1,10 @@
+try_source() { [ -f "$1" ] && source "$1" }
+
 # Should clean up PATH
 export PATH=/usr/local/bin/aws_completer:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/ruby/bin:/opt/homebrew/bin:/opt/homebrew/opt/scala@2.12/bin:$HOME/.rbenv/bin:$HOME/.toolbox/bin:$HOME/scripts:$PATH
 
-# Enable antidote
-source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh
-antidote load ${ZDOTDIR:-$HOME}/.zsh_plugins.txt
+# Load plugins via Antidote
+try_source "$HOMEBREW_PREFIX"/opt/antidote/share/antidote/antidote.zsh && antidote load "${ZDOTDIR:-$HOME}"/.zsh_plugins.txt
 
 autoload bashcompinit && bashcompinit
 autoload -Uz compinit && compinit
@@ -40,14 +41,9 @@ eval "$(ssh-agent -s)"
 eval "$(fzf --zsh)"
 eval "$(brew shellenv)"
 
-alias ctbs='clang-tidy -p ./build --color --quiet ./src/*'
-
 # Neovim is my default editor
 export EDITOR="nvim"
 export VISUAL="nvim"
-
-# Rust stuff - cleanup?
-. "$HOME/.cargo/env"
 
 # Aliases and functions
 if [[ -n "$XDG_CONFIG_HOME" && -d "$XDG_CONFIG_HOME"/zsh ]]; then
