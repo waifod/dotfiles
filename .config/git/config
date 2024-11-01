@@ -1,6 +1,8 @@
 [user]
 	email = waifod@pm.me
 	name = waifod
+[includeIf "gitdir:~/workplace/**"]
+    path = ~/.config/git/work_config
 [color]
 	ui = auto
 [core]
