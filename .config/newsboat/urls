@@ -44,17 +44,20 @@ http://feeds.feedburner.com/TheBayesianConspiracy rat podcast
 https://edwardsnowden.substack.com/feed/ rat
 https://blog.pragmaticengineer.com/rss/ rat tech
 https://read.engineerscodex.com/feed tech
-https://thephd.dev/feed.xml tech
-https://www.cppstories.com/index.xml tech
-https://simontoth.substack.com/feed/ tech
-https://meetingcpp.com/feed.xml tech
-https://www.modernescpp.com/index.php/feed/ tech
-https://isocpp.org/blog/rss/ tech
-https://randomascii.wordpress.com/feed/ tech
-https://www.sandordargo.com/feed.xml tech
-https://arne-mertz.de/feed/ tech
-https://herbsutter.com/feed/ tech
-https://devblogs.microsoft.com/cppblog/feed/ tech
+https://thephd.dev/feed.xml cpp tech
+https://xania.org/feed.atom cpp tech
+https://www.cppstories.com/index.xml cpp tech
+https://simontoth.substack.com/feed/ cpp tech
+https://meetingcpp.com/feed.xml cpp tech
+https://www.modernescpp.com/index.php/feed/ cpp tech
+https://isocpp.org/blog/rss/ cpp tech
+https://randomascii.wordpress.com/feed/ cpp tech
+https://www.sandordargo.com/feed.xml cpp tech
+https://arne-mertz.de/feed/ cpp tech
+https://herbsutter.com/feed/ cpp tech
+https://devblogs.microsoft.com/cppblog/feed/ cpp tech
+https://without.boats/index.xml rust tech
+https://fasterthanli.me/index.xml rust tech
 https://terminaltrove.com/blog.xml tech
 http://econlog.econlib.org/index.xml econ
 https://feeds.feedburner.com/marginalrevolution/feed econ

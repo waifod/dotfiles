@@ -2,6 +2,7 @@ try_source() { [ -f "$1" ] && source "$1" }
 
 # Should clean up PATH
 export PATH=/usr/local/bin/aws_completer:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/ruby/bin:/opt/homebrew/bin:/opt/homebrew/opt/scala@2.12/bin:$HOME/.rbenv/bin:$HOME/.toolbox/bin:$HOME/scripts:$PATH
+export PATH=$HOME/.cargo/bin:$PATH
 
 # Load plugins via Antidote
 try_source "$HOMEBREW_PREFIX"/opt/antidote/share/antidote/antidote.zsh && antidote load "${ZDOTDIR:-$HOME}"/.zsh_plugins.txt
@@ -43,7 +44,7 @@ eval "$(brew shellenv)"
 
 # Neovim is my default editor
 export EDITOR="nvim"
-export VISUAL="nvim"
+export VISUAL="$EDITOR"
 
 # Set bat color scheme
 export BAT_THEME="gruvbox-dark"
@@ -72,3 +73,4 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 zstyle ':fzf-tab:*' switch-group '<' '>'
 
 zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+export PATH="/opt/homebrew/opt/node@18/bin:$PATH"
