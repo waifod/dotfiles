@@ -133,11 +133,6 @@ return {
     end,
   },
 
-  {
-    "neovim/nvim-lspconfig",
-    opts = { autoformat = false },
-  },
-
   --- Restore sessions
   {
     "rmagatti/auto-session",
