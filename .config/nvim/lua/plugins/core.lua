@@ -146,4 +146,15 @@ return {
       -- log_level = 'debug',
     },
   },
+
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      setup = {
+        rust_analyzer = function()
+          return true
+        end,
+      },
+    },
+  },
 }
