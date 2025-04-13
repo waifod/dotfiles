@@ -59,7 +59,7 @@ zstyle ':fzf-tab:*' switch-group '<' '>'
 
 zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 
-if [ "$(uname)" == "Darwin" ]; then
+if [[ "$(uname)" == "Darwin" ]]; then
   # Load plugins via Antidote
   try_source "$HOMEBREW_PREFIX"/opt/antidote/share/antidote/antidote.zsh && antidote load "${ZDOTDIR:-$HOME}"/.zsh_plugins.txt
 
