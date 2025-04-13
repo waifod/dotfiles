@@ -1,11 +1,7 @@
 try_source() { [ -f "$1" ] && source "$1" }
 
 # Should clean up PATH
-export PATH=/usr/local/bin/aws_completer:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/ruby/bin:/opt/homebrew/bin:/opt/homebrew/opt/scala@2.12/bin:$HOME/.rbenv/bin:$HOME/.toolbox/bin:$HOME/scripts:$PATH
 export PATH=$HOME/.cargo/bin:$PATH
-
-# Load plugins via Antidote
-try_source "$HOMEBREW_PREFIX"/opt/antidote/share/antidote/antidote.zsh && antidote load "${ZDOTDIR:-$HOME}"/.zsh_plugins.txt
 
 autoload bashcompinit && bashcompinit
 autoload -Uz compinit && compinit
@@ -20,10 +16,6 @@ bindkey "\e[B" history-beginning-search-forward
 bindkey "\C-p" history-beginning-search-backward
 bindkey "\C-n" history-beginning-search-forward
 
-export ANDROID_HOME="/Users/dumatte/Library/Android/sdk"
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home"
-alias python='/opt/homebrew/bin/python3'
-
 export PROMPT="
 %{$fg[white]%}(%D %*) <%?> [%~] $program %{$fg[default]%}
 %{$fg[cyan]%}%m %#%{$fg[default]%} "
@@ -32,15 +24,8 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-export DEV_CNAME="dumatte-dev.aka.corp.amazon.com"
-export WEBPACK_DEV_SERVER_PORT=4000
 
-export DEV_OVERRIDE=1
-
-eval "$(starship init zsh)"
-eval "$(ssh-agent -s)"
 eval "$(fzf --zsh)"
-eval "$(brew shellenv)"
 
 # Neovim is my default editor
 export EDITOR="nvim"
@@ -73,4 +58,18 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 zstyle ':fzf-tab:*' switch-group '<' '>'
 
 zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
-export PATH="/opt/homebrew/opt/node@18/bin:$PATH"
+
+if [ "$(uname)" == "Darwin" ]; then
+  # Load plugins via Antidote
+  try_source "$HOMEBREW_PREFIX"/opt/antidote/share/antidote/antidote.zsh && antidote load "${ZDOTDIR:-$HOME}"/.zsh_plugins.txt
+
+  export DEV_CNAME="dumatte-dev.aka.corp.amazon.com"
+  export WEBPACK_DEV_SERVER_PORT=4000
+  export DEV_OVERRIDE=1
+  eval "$(brew shellenv)"
+  export ANDROID_HOME="/Users/dumatte/Library/Android/sdk"
+  export JAVA_HOME="/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home"
+  alias python='/opt/homebrew/bin/python3'
+  export PATH="/opt/homebrew/opt/node@18/bin:$PATH"
+  export PATH=/usr/local/bin/aws_completer:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/ruby/bin:/opt/homebrew/bin:/opt/homebrew/opt/scala@2.12/bin:$HOME/.rbenv/bin:$HOME/.toolbox/bin:$HOME/scripts:$PATH
+fi
