@@ -1,3 +1,7 @@
 alias cfg="$(which git) --git-dir=${DOTFILES_HOME:-$HOME/.dotfiles} --work-tree=$HOME"
 alias cgc="clang++ -std=c++20 -Wall -Wextra -g -fsanitize=address -fsanitize=undefined -fno-sanitize-recover -O2 -o a"
 alias g++="g++-14 -std=c++20 -Wall -Wextra -g -O2 -o a"
+
+if [[ "$(uname)" == "Darwin" ]]; then
+  alias bmg='bemol --generate-vscode-ws $(basename $PWD).code-workspace'
+fi
