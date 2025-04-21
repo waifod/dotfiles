@@ -27,6 +27,10 @@ export NVM_DIR="$HOME/.nvm"
 
 eval "$(fzf --zsh)"
 
+# Perl5
+#PERL_MM_OPT="INSTALL_BASE=$HOME/perl5" cpan local::lib
+#eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
+
 # Neovim is my default editor
 export EDITOR="nvim"
 export VISUAL="$EDITOR"
