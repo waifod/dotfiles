@@ -14,8 +14,8 @@ alias bws='brazil workspace'
 ENABLE_CORRECTION="true"
 setopt auto_cd
 
-bindkey "\e[A" history-beginning-search-backward
-bindkey "\e[B" history-beginning-search-forward
+bindkey "^[[A" history-beginning-search-backward
+bindkey "^[[B" history-beginning-search-forward
 bindkey "\C-p" history-beginning-search-backward
 bindkey "\C-n" history-beginning-search-forward
 
@@ -29,14 +29,6 @@ export NVM_DIR="$HOME/.nvm"
 
 
 eval "$(fzf --zsh)"
-
-# Perl5
-#PERL_MM_OPT="INSTALL_BASE=$HOME/perl5" cpan local::lib
-#eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
-
-# Neovim is my default editor
-export EDITOR="nvim"
-export VISUAL="$EDITOR"
 
 # Set bat color scheme
 export BAT_THEME="gruvbox-dark"

@@ -10,3 +10,4 @@ Please follow [this guide](https://www.atlassian.com/git/tutorials/dotfiles).
 * bat
 * eza
 * fzf (to be added)
+* keychain (key management)

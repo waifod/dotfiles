@@ -16,3 +16,8 @@ export DOTFILES_HOME="$HOME"/.dotfiles
 # Remember to make it available in /etc/locale.gen
 export LANG=en_US.UTF-8
 export LC_TIME=en_IE.UTF-8
+
+# Default programs
+export BROWSER="firefox"
+export EDITOR="nvim"
+export VISUAL="$EDITOR"
