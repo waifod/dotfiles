@@ -13,5 +13,5 @@ export ZDOTDIR="$XDG_CONFIG_HOME"/zsh
 export DOTFILES_HOME="$HOME"/.dotfiles
 
 # locale
-export LC_ALL=en_US.UTF-8
-export LANG=$LC_ALL
+export LC_ALL=it_IT.UTF-8
+export LANG=en_US.UTF-8

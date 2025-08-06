@@ -1,5 +1,8 @@
 try_source() { [ -f "$1" ] && source "$1" }
 
+SAVEHIST=10000
+HISTSIZE=10000
+
 # Should clean up PATH
 export PATH=$HOME/.cargo/bin:$PATH
 

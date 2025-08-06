@@ -1,4 +1,6 @@
-eval "$(/opt/homebrew/bin/brew shellenv)"
+if [[ "$(uname)" == "Darwin" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
 
 # Setting PATH for Python 2.7
 # The original version is saved in .zprofile.pysave

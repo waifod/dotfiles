@@ -226,4 +226,12 @@ bar {
     }
 }
 
+#
+# Applications:
+#
+    # Start Telegram
+    bindsym $mod+Shift+t exec Telegram
+    # Start default browser
+    bindsym $mod+Shift+b exec firefox
+
 include /etc/sway/config.d/*
