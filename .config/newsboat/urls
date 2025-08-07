@@ -1,30 +1,26 @@
 https://news.ycombinator.com/rss misc
 https://lobste.rs/rss
-https://blog.thevinter.com/feed.xml froup
 https://planet.haskell.org/rss20.xml code
 https://neilmitchell.blogspot.com/feeds/posts/default?alt=rss code
 https://lexi-lambda.github.io/feeds/all.rss.xml code
 https://www.mmhaskell.com/blog?format=RSS code
 https://fpcomplete.com/atom.xml code
 https://markkarpov.com/feed.atom code
-https://bitemyapp.com/rss.xml code
 http://comonad.com/reader/feed/ code math
 https://arxiv.org/rss/cs.LG/ arxiv
-https://arxiv.org/rss/math.AT/ arxiv
-https://arxiv.org/rss/math.CT/ arxiv
-https://arxiv.org/rss/math.LO/ arxiv
-https://arxiv.org/rss/math.PR/ arxiv
-https://arxiv.org/rss/math.ST/ arxiv
-https://arxiv.org/rss/stat.ML/ arxiv
-https://homotopytypetheory.org/feed/ math
+https://arxiv.org/rss/cs.DB/ arxiv
+https://arxiv.org/rss/cs.DC/ arxiv
+https://arxiv.org/rss/cs.DS/ arxiv
+https://arxiv.org/rss/cs.DM/ arxiv
+https://arxiv.org/rss/cs.FL/ arxiv
+https://arxiv.org/rss/cs.LO/ arxiv
+https://arxiv.org/rss/cs.OS/ arxiv
 https://golem.ph.utexas.edu/category/atom10.xml math
 http://math.andrej.com/feed.xml math
 https://themonadreader.wordpress.com/feed/ math
 https://bartoszmilewski.com/feed/ math
 https://jonathanweisberg.org/index.xml math philosophy
 https://www.math.columbia.edu/~woit/wordpress/?feed=rss2 math science
-https://api.quantamagazine.org/feed/ science math
-https://analiticimpertinenti.wordpress.com/feed/ philosophy
 https://www.lesswrong.com/feed.xml?view=curated-rss "~LessWrong - Curated" rat
 https://www.lesswrong.com/feed.xml rat
 https://astralcodexten.substack.com/feed/ rat
@@ -39,7 +35,6 @@ https://aella.substack.com/feed/ rat
 https://www.scottaaronson.blog/?feed=rss2 rat
 https://rootsofprogress.org/feed.xml rat
 https://qntm.org/rss.php rat
-https://anchor.fm/s/732c8134/podcast/rss rat podcast
 http://feeds.feedburner.com/TheBayesianConspiracy rat podcast
 https://edwardsnowden.substack.com/feed/ rat
 https://blog.pragmaticengineer.com/rss/ rat tech
@@ -80,60 +75,12 @@ https://lukesmith.xyz/rss.xml ls tech
 https://notrelated.xyz/rss ls podcast
 https://danyspin97.org/index.xml tech
 https://blog.janestreet.com/feed.xml tech
-https://stackoverflow.com/feeds/tag/idris stack
-https://math.stackexchange.com/feeds/tag/categorical-logic stack
-https://math.stackexchange.com/feeds/tag/simplicial-stuff stack
-https://math.stackexchange.com/feeds/tag/model-categories stack
-https://math.stackexchange.com/feeds/tag/locally-presentable-categories stack
-https://math.stackexchange.com/feeds/tag/monoidal-categories stack
-https://math.stackexchange.com/feeds/tag/functors stack
-https://math.stackexchange.com/feeds/tag/natural-transformations stack
-https://math.stackexchange.com/feeds/tag/yoneda-lemma stack
-https://math.stackexchange.com/feeds/tag/adjoint-functors stack
-https://math.stackexchange.com/feeds/tag/category-theory stack
-https://math.stackexchange.com/feeds/tag/higher-category-theory stack
-https://math.stackexchange.com/feeds/tag/algebraic-topology stack
-https://math.stackexchange.com/feeds/tag/homotopy-theory stack
-https://math.stackexchange.com/feeds/tag/stable-homotopy-theory stack
-https://math.stackexchange.com/feeds/tag/derived-functors stack
-https://math.stackexchange.com/feeds/tag/univalent-foundations stack
-https://math.stackexchange.com/feeds/tag/homotopy-type-theory stack
-https://math.stackexchange.com/feeds/tag/type-theory stack
-https://math.stackexchange.com/feeds/tag/homology-cohomology stack
-https://math.stackexchange.com/feeds/tag/spectra stack
-https://math.stackexchange.com/feeds/tag/sheaf-theory stack
-https://math.stackexchange.com/feeds/tag/sheaf-cohomology stack
-https://math.stackexchange.com/feeds/tag/topos-theory stack
-https://math.stackexchange.com/feeds/tag/foundations stack
-https://math.stackexchange.com/feeds/tag/constructive-mathematics stack
-https://math.stackexchange.com/feeds/tag/set-theory stack
-https://math.stackexchange.com/feeds/tag/logic stack
-https://math.stackexchange.com/feeds/tag/algebraic-k-theory stack
-https://math.stackexchange.com/feeds/tag/k-theory stack
-https://math.stackexchange.com/feeds/tag/topological-k-theory stack
-https://math.stackexchange.com/feeds/tag/algebraic-geometry stack
 https://www.phoronix.com/rss.php tech
 https://lukesmith.xyz/peertube ls tech video
 https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg tech video
 https://www.youtube.com/feeds/videos.xml?channel_id=UCEbYhDd6c6vngsF5PQpFVWg tech video
-https://www.youtube.com/feeds/videos.xml?channel_id=UC9-y-6csu5WGm29I7JiwpnA tech video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCxUZjZaLPsHPlp8AtkSBZiA math tech video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCuDrbQmLiT0jkSlMKPN-fsQ math video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCk1WaD2LYVvNiRPteCBeSsA math video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCKdVVjPg_dHhbIiuzLh4Llg math video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCDuSm5jq-ymS71KqDmuo9qw math video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCC8U64MmU0yDdZStpDwUIDQ math video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCYvnwhhcZoYMu0iSNvm7bRQ math video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCEJpPsWn9lD_D-OsE4sPnCA math video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCy3u23mZE4TyW88yr6JLx9A math video
-https://www.youtube.com/feeds/videos.xml?channel_id=UC4R1IsRVKs_qlWKTm9pT82Q math video
-https://www.youtube.com/feeds/videos.xml?channel_id=UC3Jivn57V6HIAY_Id_XNkYQ philosophy video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCQnQSKZtwLHd72ucxGkXOnA philosophy video
 https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q rat philosophy video
 https://www.youtube.com/feeds/videos.xml?channel_id=UCLB7AzTwc6VFZrBsO2ucBMg rat video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCe0TLA0EsQbE-MjuHXevj2A fit video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCZIIRX8rkNjVpP-oLMHpeDw fit video
-https://www.youtube.com/feeds/videos.xml?channel_id=UC1CVzH-XVr3E-kTT6D8hhfg fit video
 https://www.youtube.com/feeds/videos.xml?channel_id=UCNvsIonJdJ5E4EXMa65VYpA video
 https://www.youtube.com/feeds/videos.xml?channel_id=UCvFApMFo_AafXbHRyEJefjA video
 https://www.youtube.com/feeds/videos.xml?channel_id=UCFhXFikryT4aFcLkLw2LBLA video
@@ -151,5 +98,3 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCpF62eV02XJpqJxBZAcsDCw vid
 https://www.youtube.com/feeds/videos.xml?channel_id=UCr4qATkzm8BXV9C0l0JImlg video
 https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw video
 https://www.youtube.com/feeds/videos.xml?channel_id=UCYXpatz5Z4ek0M_5VR-Qt1A video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCH_6I9QEaP3Tm3CkKHkvy-w video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCJJnX_k6hmPfuROE_Wb3-cQ video
