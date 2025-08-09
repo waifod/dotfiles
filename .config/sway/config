@@ -234,4 +234,6 @@ bar {
     # Start default browser
     bindsym $mod+Shift+b exec firefox
 
+output "*" bg `find ~/pics/lain_pics/wide -type f | shuf -n 1` fill
+
 include /etc/sway/config.d/*
