@@ -1,29 +1,13 @@
-#!/bin/zsh
-
-# Make a directory and immediately navigate to it
-function take() {
-    local DIR=$1
-    mkdir -p $DIR && cd $DIR
-}
-
-# Pipe help to the manpager if it's not done by default
-function myhelp() {
-    cmd=$1
-    if ! type "$cmd" &> /dev/null; then
-        echo "'$cmd' command not found."
+# Manpages for commands and their aliases
+function man() {
+    # Check if the command is an alias
+    if alias "$1" &>/dev/null; then
+        # If it's an alias, expand it and use the first word as the command
+        local cmd=$(alias "$1" | sed "s/.*='\(.*\)'/\1/" | awk '{print $1}')
+        command man "$cmd" "$@"
     else
-        if ! alias "$cmd" &> /dev/null; then
-            if "$@" --help &> /dev/null; then
-                IFS=' ' read -r manpager_cmd manpager_args <<< "$MANPAGER"
-                "$manpager_cmd" $manpager_args < <("$@" --help)
-            else
-                echo "'$cmd' does not support '--help'."
-            fi
-        else
-            cmd_alias=$(alias "$cmd" | sed -E "s/.*='([^']*)'.*/\1/")
-            cmd_arr=( ${(Q)${(z)cmd_alias}} )
-            help "${cmd_arr[@]}"
-        fi
+        # Otherwise, just use the original man command
+        command man "$@"
     fi
 }
 
@@ -43,9 +27,9 @@ function gbda() {
 fshow() {
   local out sha q
   while out=$(
-      git log --graph --color=always \
-          --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" |
-      fzf --ansi --multi --no-sort --reverse --query="$q" --print-query); do
+    git log --graph --color=always \
+      --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" |
+    fzf --ansi --multi --no-sort --reverse --query="$q" --print-query); do
     q=$(head -1 <<< "$out")
     while read sha; do
       [ -n "$sha" ] && git show --color=always $sha | less -R
@@ -62,39 +46,3 @@ setup-credentials() {
   aws codeartifact login --region us-west-2 --tool npm --domain amazon --domain-owner 730335472693 --repository shared
   screen -S ninja -d -m nohup ninja-dev-sync
 }
-
-# TODO: test all of the below
-
-# swap() {
-#     if [ "$#" -lt 2 ]; then
-#         echo "Usage: swap [file1] [file2]"
-#         return 1
-#     fi
-
-#     if [ "$1" = "$2" ]; then
-#         echo "Error: Input files are the same."
-#         return 1
-#     fi
-
-#     local TMPFILE=tmp.$$
-#     mv "$1" $TMPFILE && mv "$2" "$1" && mv $TMPFILE "$2"
-# }
-
-# ssh-tmux() {
-#     ssh -t "$@" -- /bin/sh -c 'tmux has && tmux a || tmux'
-# }
-
-# swap() {
-#     if [ "$#" -lt 2 ]; then
-#         echo "Usage: swap [file1] [file2]"
-#         return 1
-#     fi
-
-#     if [ "$1" = "$2" ]; then
-#         echo "Error: Input files are the same."
-#         return 1
-#     fi
-
-#     local TMPFILE=tmp.$$
-#     mv "$1" $TMPFILE && mv "$2" "$1" && mv $TMPFILE "$2"
-# }

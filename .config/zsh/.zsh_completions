@@ -1,0 +1,30 @@
+# Completion loading
+# Enable Bash completion support in Zsh
+autoload bashcompinit && bashcompinit
+
+# Load Zsh's native completion system with caching for performance
+if [[ -e "$ZDOTDIR/.zcompdump" && "$ZDOTDIR/.zcompdump" -nt "$ZDOTDIR/zsh_plugins.txt" ]]; then
+  autoload -Uz compinit
+  compinit -C
+else
+  autoload -Uz compinit
+  compinit
+fi
+
+# Auto-completes a path by typing the first letter of each directory
+setopt auto_menu
+setopt auto_list
+setopt menu_complete
+
+# AWS CLI completion
+complete -C '/usr/local/bin/aws_completer' aws
+
+# FZF-tab and completion styles
+eval "$(fzf --zsh)"
+zstyle ':completion:*:git-checkout:*' sort false
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' menu no
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+zstyle ':fzf-tab:*' switch-group '<' '>'
+zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
