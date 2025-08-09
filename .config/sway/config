@@ -45,6 +45,10 @@ set $aqua #689d68
 set $gray #a89984
 set $darkgray #1d2021
 
+### Window configuration
+default_border pixel 2
+default_floating_border pixel 2
+
 ### Idle configuration
 #
 # Example configuration:
@@ -247,6 +251,20 @@ bar {
         urgent_workspace     $red $red $bg
     }
 }
+
+#
+# Window title bars & borders section
+#
+
+# aqua/blue/green/yellow gruvbox
+# class                 border|backgr|text|indicator|child_border
+client.focused          $aqua $aqua $darkgray $purple $aqua
+#client.focused          $blue $blue $darkgray $purple $blue
+#client.focused          $green $green $darkgray $purple $green
+#client.focused          $yellow $yellow $darkgray $purple $yellow
+client.focused_inactive $darkgray $darkgray $yellow $purple $darkgray
+client.unfocused        $darkgray $darkgray $yellow $purple $darkgray
+client.urgent           $red $red $gray $red $red
 
 #
 # Applications:
