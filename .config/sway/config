@@ -17,7 +17,7 @@ set $right l
 set $term alacritty
 # Your preferred application launcher
 #set $menu wmenu-run
-set $menu bemenu-run
+set $menu bemenu-run -i
 
 ### Output configuration
 #
