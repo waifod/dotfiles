@@ -17,6 +17,9 @@ source "$ZDOTDIR/.zsh_prompt"
 # Completion settings
 source "$ZDOTDIR/.zsh_completions"
 
+# Secrets
+source "$ZDOTDIR/.zsh_secrets"
+
 # OS-specific settings
 if [[ "$(uname)" == "Darwin" ]]; then
     source "$ZDOTDIR/.zsh_darwin"
