@@ -1,24 +1,51 @@
 [user]
 	email = dumatte@amazon.com
 	name = Matteo Durante
+
 [includeIf "gitdir:~/workplace/**"]
-    path = ~/.config/git/work_config
+	path = ~/.config/git/work_config
+
 [color]
 	ui = auto
+
 [core]
-	pager = less -FMRiX
+	# Use delta as the pager for diff-related commands.
+	pager = delta --line-numbers --side-by-side
 	editor = nvim
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	dark = true
+
+[merge]
+	conflictStyle = zdiff3
+
 [push]
 	default = simple
+
 [rebase]
-  autostash = true
+	autostash = true
+
 [stash]
 	showDiff = true
+
 [log]
-  abbrevCommit = true
-  date         = iso
-  follow       = true
+	abbrevCommit = true
+	date         = iso
+	follow       = true
+
 [alias]
-	dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)\"%an\" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
+	# Alias for a nice git log graph
+	dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)"%an" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
+	# A simple alias for a beautiful word diff
+	diffp = diff --word-diff
+
 [credential]
 	helper = cache
+
+[pager]
+	# Use delta specifically for `git blame` for better readability.
+	blame = delta --line-numbers --side-by-side

@@ -38,3 +38,6 @@ export MANROFFOPT="-c"
 
 # Ensure man pages also use bat for paging, with specific themes.
 export MANPAGER="sh -c 'col -bx | bat -l man --paging=always --theme=gruvbox-dark'"
+
+export BAT_THEME="gruvbox-dark"
+export DELTA_THEME="gruvbox-dark"
