@@ -1,6 +1,2 @@
-# Load plugins via Antidote
+# Load plugins
 # This is a good place to consolidate all plugin management
-# The Homebrew prefix check is now done in .zprofile
-if [ -n "$HOMEBREW_PREFIX" ]; then
-    source "$HOMEBREW_PREFIX"/opt/antidote/share/antidote/antidote.zsh && antidote load "$ZDOTDIR"/.zsh_plugins.txt
-fi

@@ -1,6 +1,6 @@
 if [[ "$(uname)" == "Darwin" ]]; then
     # macOS specific environment variables
-    #
+
     # Homebrew environment
     eval "$(/opt/homebrew/bin/brew shellenv)"
 

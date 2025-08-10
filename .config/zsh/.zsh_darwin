@@ -1,0 +1,21 @@
+alias bmg='bemol --generate-vscode-ws $(basename $PWD).code-workspace'
+
+# AWS CLI completion
+complete -C '/usr/local/bin/aws_completer' aws
+
+# Load plugins
+source "$HOMEBREW_PREFIX"/opt/antidote/share/antidote/antidote.zsh && antidote load "$ZDOTDIR"/.zsh_plugins.txt
+
+# NVM (Node Version Manager) loading
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+setup-credentials() {
+  kinit
+  mwinit -s
+  ssh-add
+  ssh clouddesk -t 'kinit -f && mwinit -s -o && ssh-add'
+  ada cred update --once
+  aws codeartifact login --region us-west-2 --tool npm --domain amazon --domain-owner 730335472693 --repository shared
+  screen -S ninja -d -m nohup ninja-dev-sync
+}

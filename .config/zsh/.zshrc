@@ -17,15 +17,18 @@ source "$ZDOTDIR/.zsh_prompt"
 # Completion settings
 source "$ZDOTDIR/.zsh_completions"
 
+# OS-specific settings
+if [[ "$(uname)" == "Darwin" ]]; then
+    source "$ZDOTDIR/.zsh_darwin"
+else
+    source "$ZDOTDIR/.zsh_linux"
+fi
+
 # Key bindings
 bindkey "^[[A" history-beginning-search-backward
 bindkey "^[[B" history-beginning-search-forward
 bindkey "\C-p" history-beginning-search-backward
 bindkey "\C-n" history-beginning-search-forward
-
-# NVM (Node Version Manager) loading
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # Bat and Less configuration
 # Use bat as the default pager, which includes syntax highlighting.
