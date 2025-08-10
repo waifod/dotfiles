@@ -4,6 +4,8 @@ alias g++="g++-14 -std=c++20 -Wall -Wextra -g -O2 -o a"
 alias bb='brazil-build'
 alias bws='brazil workspace'
 alias cat="bat --paging=never"
+alias find="fd"
+alias ls="eza"
 alias grep="rg"
 
 # macOS specific aliases
