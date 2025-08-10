@@ -140,83 +140,50 @@ return {
     },
   },
 
+  -- Plugin specification for codecompanion.nvim
   {
     "olimorris/codecompanion.nvim",
+    -- Essential dependencies for codecompanion.nvim
     dependencies = {
       "nvim-lua/plenary.nvim",
-      { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" }, -- Ensures parsers are updated
-      -- Optional: If a completion plugin like blink.cmp is used, ensure codecompanion is a source
-      -- {
-      --   "saghen/blink.cmp",
-      --   lazy = false, -- Or "VeryLazy" for later loading
-      --   version = "*",
-      --   opts = {
-      --     sources = {
-      --       default = { "lsp", "path", "buffer", "codecompanion" }, -- Include codecompanion as a completion source
-      --     },
-      --   },
-      -- },
+      "nvim-treesitter/nvim-treesitter",
     },
-    opts = {
-      strategies = {
-        chat = {
-          adapter = "huggingface_gemma3", -- Assign a custom name for the adapter
+    -- Configuration function executed after the plugin is loaded
+    config = function()
+      require("codecompanion").setup({
+        -- Configure specific LLM adapters
+        adapters = {
+          -- Configuration for the Gemini adapter
+          gemini = function()
+            return require("codecompanion.adapters").extend("gemini", {
+              -- Specify the official Gemini 2.5 Pro model identifier
+              model = "gemini-2.5-pro",
+              -- The GEMINI_API_KEY environment variable will be automatically
+              -- detected and used by codecompanion.nvim's default behavior.[2]
+              -- For explicit control or if using a different environment variable name,
+              -- you could uncomment and use the 'env' table:
+              -- env = {
+              --   api_key = vim.env.GEMINI_API_KEY, -- Or vim.env.YOUR_CUSTOM_GEMINI_ENV_VAR
+              -- },
+            })
+          end,
         },
-        -- 'inline' strategy for direct code suggestions
-        inline = {
-          adapter = "huggingface_gemma3",
+        -- Optionally, set default strategies to use the Gemini adapter
+        -- This ensures Gemini is the default for chat and inline interactions.
+        strategies = {
+          chat = {
+            adapter = "gemini",
+          },
+          inline = {
+            adapter = "gemini",
+          },
         },
-      },
-      adapters = {
-        huggingface_gemma3 = function()
-          return require("codecompanion.adapters").extend("openai_compatible", {
-            env = {
-              -- IMPORTANT: Replace with the actual Hugging Face Inference Endpoint URL.
-              -- Ensure the URL includes the /v1/ suffix if provided by Hugging Face.
-              url = os.getenv("HF_INFERENCE_ENDPOINT_URL"), -- Base URL read from environment variable
-              chat_url = "/v1/chat/completions", -- Standard OpenAI chat completions endpoint path
-              api_key = os.getenv("HF_TOKEN"), -- Hugging Face User Access Token read from environment variable
-            },
-            name = "huggingface_gemma3", -- The name of this custom adapter
-            schema = {
-              model = {
-                choices = { "google/gemma-3-27b-it" }, -- Specify the exact model ID
-                default = "google/gemma-3-27b-it", -- Set as the default model
-              },
-              temperature = {
-                default = 0.7, -- Controls randomness: 0.0 (deterministic) to 2.0 (highly random)
-                min = 0,
-                max = 2,
-                step = 0.1,
-                desc = "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
-              },
-              max_tokens = {
-                default = 4096, -- Maximum number of tokens for the model's response
-                min = 1,
-                max = 8192, -- Adjust based on Gemma3's context window and endpoint limits
-                desc = "The maximum number of tokens to generate in the chat completion.",
-              },
-              -- Other parameters supported by the OpenAI-compatible API and Gemma3 can be added here,
-              -- such as top_p, frequency_penalty, presence_penalty, stop sequences, etc.
-            },
-          })
-        end,
-      },
-      -- Optional: Enable debug logging for detailed troubleshooting (see Section 7)
-      opts = {
-        log_level = "DEBUG",
-      },
-    },
-    -- Ensure nvim-treesitter is set up to highlight markdown/markdown_inline.
-    -- This setup might reside in a separate LazyVim configuration file (e.g., lua/plugins/treesitter.lua),
-    -- but its presence is crucial for codecompanion.nvim's functionality.
-    -- Example (if placed directly here, though usually separate in LazyVim):
-    -- local ts_status, treesitter = pcall(require, "nvim-treesitter.configs")
-    -- if ts_status then
-    --   treesitter.setup({
-    --     ensure_installed = { "lua", "markdown", "markdown_inline", "yaml" },
-    --     highlight = { enable = true },
-    --   })
-    -- end
+        -- Optional: Enable debug logging for detailed troubleshooting.
+        -- Uncomment the 'opts' table below to activate.
+        -- opts = {
+        --   log_level = "DEBUG", -- Set to "TRACE" for even more verbose logging [1]
+        -- },
+      })
+    end,
   },
 }
