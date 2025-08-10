@@ -1,48 +1,53 @@
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-  if vim.v.shell_error ~= 0 then
-    vim.api.nvim_echo({
-      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
-      { "\nPress any key to exit..." },
-    }, true, {})
-    vim.fn.getchar()
-    os.exit(1)
-  end
-end
-vim.opt.rtp:prepend(lazypath)
+-- ~/.config/nvim/lua/config/lazy.lua
+
+-- This file is automatically loaded by lazy.nvim
+-- Do not require this file manually in your init.lua
 
 require("lazy").setup({
   spec = {
-    -- add LazyVim and import its plugins
+    -- The first spec should be the LazyVim plugin itself.
+    -- This imports all the default LazyVim plugins and configurations.
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    -- import/override with your plugins
+
+    -- The second spec imports all of your custom plugins from the `lua/plugins/` directory.
+    -- lazy.nvim automatically discovers and loads any.lua files in this directory.
     { import = "plugins" },
   },
+
+  -- Configure lazy.nvim's default options.
   defaults = {
-    -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
-    -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default.
+    -- It is recommended to leave versioning disabled (version = false).
+    -- LazyVim is tested against the latest commits of its plugins, and many plugins
+    -- do not use semantic versioning or have outdated stable releases.
+    -- Using the latest git commit ensures maximum compatibility.
+    version = false,
+
+    -- By default, your custom plugins will be loaded eagerly.
+    -- If you want to lazy-load all your plugins, you can set this to true.
+    -- However, for clarity, it is often better to specify lazy-loading triggers
+    -- on a per-plugin basis.
     lazy = false,
-    -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,
-    -- have outdated releases, which may break your Neovim install.
-    version = false, -- always use the latest git commit
-    -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
-  install = { colorscheme = {} },
+
+  -- Pre-install some colorschemes to avoid a flash of unstyled content on startup.
+  install = { colorscheme = { "gruvbox" } },
+
+  -- Enable checking for plugin updates.
   checker = {
-    enabled = true, -- check for plugin updates periodically
-    notify = false, -- notify on update
-  }, -- automatically check for plugin updates
+    enabled = true,
+    notify = false, -- Don't notify on every update, check with :Lazy manually.
+  },
+
+  -- Configure performance options.
   performance = {
     rtp = {
-      -- disable some rtp plugins
+      -- Disable some default Neovim plugins that are either replaced by
+      -- more modern alternatives or are not commonly used.
       disabled_plugins = {
         "gzip",
-        -- "matchit",
-        -- "matchparen",
-        -- "netrwPlugin",
+        "matchit",
+        "matchparen",
+        "netrwPlugin",
         "tarPlugin",
         "tohtml",
         "tutor",
