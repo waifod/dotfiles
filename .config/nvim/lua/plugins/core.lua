@@ -62,11 +62,33 @@ return {
     },
   },
 
+  -- Override neo-tree to display it on the right
+  {
+    "nvim-neo-tree/neo-tree.nvim",
+    opts = {
+      window = {
+        position = "right",
+      },
+    },
+  },
+
   -- Override nvim-treesitter to add extra parsers
   {
     "nvim-treesitter/nvim-treesitter",
     opts = {
       ensure_installed = {
+        "bash",
+        "css",
+        "dockerfile",
+        "html",
+        "lua",
+        "markdown",
+        "markdown_inline",
+        "query",
+        "regex",
+        "vim",
+        "vimdoc",
+        "yaml",
         "tsx",
         "typescript",
         "java",

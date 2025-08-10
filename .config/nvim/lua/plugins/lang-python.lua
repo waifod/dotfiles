@@ -9,8 +9,8 @@ return {
     "williamboman/mason.nvim",
     opts = {
       ensure_installed = {
-        "pyright", -- Can be installed via the system; if so, comment this line
-        "ruff", -- The ruff language server can be installed via the system; if so, comment this line
+        --"pyright", -- Can be installed via the system; if so, comment this line
+        --"ruff", -- The ruff language server can be installed via the system; if so, comment this line
         "debugpy", -- The Python debug adapter can be installed via the system; if so, comment this line
       },
     },
