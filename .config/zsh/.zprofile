@@ -1,9 +1,6 @@
-# Set up SSH agent credentials
-# We do this here as it's a login-only action.
-eval $(keychain --eval --quiet --noask id_ed25519)
-
-# macOS specific environment variables
 if [[ "$(uname)" == "Darwin" ]]; then
+    # macOS specific environment variables
+    #
     # Homebrew environment
     eval "$(/opt/homebrew/bin/brew shellenv)"
 
@@ -21,4 +18,10 @@ if [[ "$(uname)" == "Darwin" ]]; then
 
     # macOS specific aliases
     alias python='/opt/homebrew/bin/python3'
+else
+    # Linux specific environment
+    
+    # Set up SSH agent credentials
+    # We do this here as it's a login-only action.
+    eval $(keychain --eval --quiet --noask id_ed25519)
 fi
