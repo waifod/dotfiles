@@ -140,6 +140,27 @@ return {
     },
   },
 
+  -- Autosave files periodically
+  {
+    "pocco81/auto-save.nvim",
+    -- Lazy load on certain events
+    event = { "InsertLeave", "TextChanged" },
+    config = function()
+      require("auto-save").setup({
+        -- Add your custom options here
+        -- For example, to change the debounce delay:
+        debounce_delay = 500, -- in milliseconds
+        -- To silence the save message:
+        execution_message = {
+          message = function()
+            return ""
+          end,
+          cleaning_interval = 0,
+        },
+      })
+    end,
+  },
+
   -- Plugin specification for codecompanion.nvim
   {
     "olimorris/codecompanion.nvim",
