@@ -2,9 +2,6 @@
 	email = dumatte@amazon.com
 	name = Matteo Durante
 
-[includeIf "gitdir:~/workplace/**"]
-	path = ~/.config/git/work_config
-
 [color]
 	ui = auto
 
