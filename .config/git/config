@@ -1,6 +1,9 @@
 [user]
-	email = dumatte@amazon.com
 	name = Matteo Durante
+  email = waifod@pm.me
+
+[includeIf "gitdir/i:/Volumes/workplace/"]
+  path = ~/.config/git/workplace
 
 [branch]
 	sort = -committerdate
@@ -23,7 +26,7 @@
 [core]
 	editor = nvim
 	pager = delta
-	excludesfile = ~/.gitignore_global
+	excludesfile = ~/.config/git/ignore
 	fsmonitor = true
 	untrackedCache = true
 
