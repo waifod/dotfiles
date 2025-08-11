@@ -2,47 +2,76 @@
 	email = dumatte@amazon.com
 	name = Matteo Durante
 
+[branch]
+	sort = -committerdate
+
+[tag]
+	sort = version:refname
+
 [color]
 	ui = auto
 
+[column]
+	ui = auto
+
+[help]
+	autocorrect = prompt
+
+[commit]
+	verbose = true
+
 [core]
-	# Use delta as the pager for diff-related commands.
-	pager = delta --line-numbers --side-by-side
 	editor = nvim
+	pager = delta
+	excludesfile = ~/.gitignore_global
+	fsmonitor = true
+	untrackedCache = true
 
 [interactive]
 	diffFilter = delta --color-only
 
 [delta]
 	navigate = true
-	dark = true
+	true-color = always
+	side-by-side = true
+	line-numbers = true
+	syntax-theme = gruvbox-dark
+	minus-style = syntax
+	plus-style = syntax
+
+[diff]
+	algorithm = histogram
+	colorMoved = plain
+
+[fetch]
+	prune = true
+	pruneTags = true
 
 [merge]
 	conflictStyle = zdiff3
 
+[rebase]
+	autoStash = true
+	autoSquash = true
+
+[pull]
+	rebase = true
+
 [push]
 	default = simple
-
-[rebase]
-	autostash = true
-
-[stash]
-	showDiff = true
+	autoSetupRemote = true
 
 [log]
 	abbrevCommit = true
-	date         = iso
-	follow       = true
+	date = iso
 
-[alias]
-	# Alias for a nice git log graph
-	dag = log --graph --format='format:%C(yellow)%h%C(reset) %C(blue)"%an" <%ae>%C(reset) %C(magenta)%cr%C(reset)%C(auto)%d%C(reset)%n%s' --date-order
-	# A simple alias for a beautiful word diff
-	diffp = diff --word-diff
+[init]
+  defaultBranch = main
 
 [credential]
-	helper = cache
+  helper = cache
 
-[pager]
-	# Use delta specifically for `git blame` for better readability.
-	blame = delta --line-numbers --side-by-side
+# TODO
+# * add a credential manager
+# * add device-specific configs
+# * add commit signing via ssh key
