@@ -1,3 +1,6 @@
+# NVM (Node Version Manager) environment variable
+export NVM_DIR="$HOME/.nvm"
+
 alias bmg='bemol --generate-vscode-ws $(basename $PWD).code-workspace'
 
 # AWS CLI completion

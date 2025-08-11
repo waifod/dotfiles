@@ -24,6 +24,3 @@ export VISUAL="$EDITOR"
 
 # Core PATH adjustments
 export PATH="$HOME/.cargo/bin:$PATH"
-
-# NVM (Node Version Manager) environment variable
-export NVM_DIR="$HOME/.nvm"
