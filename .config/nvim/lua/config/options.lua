@@ -49,6 +49,10 @@ opt.undofile = true -- Save undo history
 opt.undolevels = 10000
 opt.updatetime = 200 -- Time in ms to wait for trigger
 opt.wrap = false -- Disable line wrapping
+opt.winbar = "%=%f" --[[
+    Display filename at the top of each split;
+    use "%=%m %f" to show that the file has unsaved notifications
+  ]] --
 
 -- Enable smooth scrolling for Neovim 0.10+
 if vim.fn.has("nvim-0.10") == 1 then
