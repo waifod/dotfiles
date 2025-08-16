@@ -6,9 +6,6 @@ alias bmg='bemol --generate-vscode-ws $(basename $PWD).code-workspace'
 # AWS CLI completion
 complete -C '/usr/local/bin/aws_completer' aws
 
-# Load plugins
-source "$HOMEBREW_PREFIX"/opt/antidote/share/antidote/antidote.zsh && antidote load "$ZDOTDIR"/.zsh_plugins.txt
-
 # NVM (Node Version Manager) loading
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"

@@ -44,3 +44,6 @@ export MANROFFOPT="-c"
 
 # Ensure man pages also use bat for paging, with specific themes.
 export MANPAGER="sh -c 'col -bx | bat -l man --paging=always --theme=gruvbox-dark'"
+
+# Setup zoxide
+eval "$(zoxide init zsh --cmd cd)"

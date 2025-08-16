@@ -1,2 +1,3 @@
 # Load plugins
-# This is a good place to consolidate all plugin management
+eval "$(sheldon source)"
+
