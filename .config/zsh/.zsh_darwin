@@ -3,6 +3,10 @@ export NVM_DIR="$HOME/.nvm"
 
 alias bmg='bemol --generate-vscode-ws $(basename $PWD).code-workspace'
 
+
+# ensure to run `mwinit -o && kinit -f` on your cloud desktop first
+alias ninja-dev-ws-stnc=ninja-dev-sync -add "$(pwd)" -add-host clouddesk -add-remote /home/$(whoami)/workplace/"${PWD##*/}" -setup
+
 # AWS CLI completion
 complete -C '/usr/local/bin/aws_completer' aws
 
