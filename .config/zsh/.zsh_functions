@@ -1,14 +1,12 @@
 # Manpages for commands and their aliases
 function man() {
-    # Check if the command is an alias
-    if alias "$1" &>/dev/null; then
-        # If it's an alias, expand it and use the first word as the command
-        local cmd=$(alias "$1" | sed "s/.*='\(.*\)'/\1/" | awk '{print $1}')
-        command man "$cmd" "$@"
-    else
-        # Otherwise, just use the original man command
-        command man "$@"
-    fi
+  if [[ -v "aliases[$1]" ]]; then
+    local alias_parts=( ${(z)aliases[$1]} )
+    local cmd=${alias_parts[1]}
+    command man "$cmd" "${@:2}"
+  else
+    command man "$@"
+  fi
 }
 
 # Update dotfiles
