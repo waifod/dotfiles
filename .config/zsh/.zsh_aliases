@@ -1,16 +1,11 @@
 alias cfg="$(which git) --git-dir=${DOTFILES_HOME:-$HOME/.dotfiles} --work-tree=$HOME"
+
 alias cgc="clang++ -std=c++20 -Wall -Wextra -g -fsanitize=address -fsanitize=undefined -fno-sanitize-recover -O2 -o a"
 alias g++="g++-14 -std=c++20 -Wall -Wextra -g -O2 -o a"
-alias bb='brazil-build'
-alias bws='brazil workspace'
-alias cat="bat --paging=never"
+
+alias cat="bat --paging=never"  # bat defaults to simple concatenation in non-interactive contexts
 alias du="dust"
 alias find="fd"
 alias grep="rg"
 alias less="bat"
 alias ls="eza"
-
-# macOS specific aliases
-if [[ "$(uname)" == "Darwin" ]]; then
-  alias bmg='bemol --generate-vscode-ws $(basename $PWD).code-workspace'
-fi

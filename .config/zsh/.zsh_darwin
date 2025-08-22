@@ -1,16 +1,16 @@
-# NVM (Node Version Manager) environment variable
-export NVM_DIR="$HOME/.nvm"
 
+alias bb="brazil-build"
+alias bws="brazil workspace"
 alias bmg='bemol --generate-vscode-ws $(basename $PWD).code-workspace'
 
-
 # ensure to run `mwinit -o && kinit -f` on your cloud desktop first
-alias ninja-dev-ws-stnc=ninja-dev-sync -add "$(pwd)" -add-host clouddesk -add-remote /home/$(whoami)/workplace/"${PWD##*/}" -setup
+alias ninja-dev-ws=ninja-dev-sync -add "$(pwd)" -add-host clouddesk -add-remote /home/$(whoami)/workplace/"${PWD##*/}" -setup
 
 # AWS CLI completion
 complete -C '/usr/local/bin/aws_completer' aws
 
-# NVM (Node Version Manager) loading
+# NVM (Node Version Manager)
+export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
