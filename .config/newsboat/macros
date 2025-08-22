@@ -1,0 +1,4 @@
+#macro-prefix SPACE
+macro c set browser "sh -c 'url=\"$1\"; if command -v pbcopy >/dev/null 2>&1; then printf %s \"$url\" | pbcopy; elif command -v wl-copy >/dev/null 2>&1; then printf %s \"$url\" | wl-copy; else printf %s \"$url\" | xclip -selection clipboard; fi' sh %u"; open-in-browser; set browser "`echo $BROWSER` %u"
+macro v set browser "mpv %u"; open-in-browser; set browser "`echo $BROWSER` %u"
+macro d set browser "wget -P ~/downloads/ %u"; open-in-browser; set browser "`echo $BROWSER` %u"

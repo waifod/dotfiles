@@ -1,3 +1,25 @@
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Query Feeds
+#
+# These are dynamic, virtual feeds based on filter expressions.
+# They must be enclosed in double quotes.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# An aggregated feed of all unread articles.
+"query:All Unread:unread = \"yes\""
+
+# A "daily briefing" of all unread articles published in the last 24 hours.
+"query:Daily Briefing:unread = \"yes\" and age < 1"
+
+# A meta-feed that aggregates all content tagged with "linux".
+"query:Linux News:tags # \"linux\""
+
+# A meta-feed for all security-related content.
+"query:Security Briefing:tags # \"security\""
+
+# An aggregated feed for Arch Linux news, using a hidden source feed.
+"query:Arch Linux Announcements:tags # \"archlinux\""
+
 https://news.ycombinator.com/rss misc
 https://lobste.rs/rss
 https://planet.haskell.org/rss20.xml code

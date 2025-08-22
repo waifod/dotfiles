@@ -1,0 +1,22 @@
+# Vim-style
+unbind-key j
+unbind-key k
+unbind-key h
+unbind-key l
+unbind-key J
+unbind-key K
+unbind-key ENTER
+unbind-key HOME
+unbind-key END
+bind j feedlist,articlelist,urlview down
+bind k feedlist,articlelist,urlview up
+bind ^F feedlist,articlelist,urlview pagedown
+bind ^B feedlist,articlelist,urlview pageup
+bind gg feedlist,articlelist home
+bind G feedlist,articlelist end
+bind l feedlist,articlelist,tagselection open
+bind <ENTER> feedlist,articlelist,tagselection open
+bind h articlelist quit
+bind q everywhere quit
+bind L articlelist open-in-browser
+bind H articlelist show-urls

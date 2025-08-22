@@ -1,0 +1,18 @@
+# Colors
+color background  default default
+color title       yellow  blue    bold
+color info        yellow   blue
+color listnormal  default default
+color listfocus   yellow default reverse bold
+color listnormal_unread   yellow default
+color listfocus_unread    yellow default reverse bold
+color article     default default
+
+# Highlights
+highlight article "^(Title|Author|Date|Feed|Link):.*$" blue default bold
+highlight article "https?://[^ ]+" green default underline
+highlight article "\\[(image|video|audio)\\]" magenta default
+highlight article "\\[[0-9]+\\]" yellow default bold
+highlight article "newsboat" yellow default bold
+highlight feedlist ".* 0/.*" white default dim
+#highlight highlight black yellow

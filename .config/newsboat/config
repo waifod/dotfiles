@@ -1,23 +1,36 @@
-notify-always yes
-notify-format "Newsboat: finished reload (%f unread feeds)"
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Newsboat Main Configuration File
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+include ~/.config/newsboat/theme
+include ~/.config/newsboat/bindings
+include ~/.config/newsboat/macros
 
-# TODO: recover linkhandler
-#external-url-viewer "urlscan -dc -r 'linkhandler {}'"
+# --- General Behavior ---
+confirm-exit yes
+cleanup-on-quit yes
+delete-read-articles-on-quit no
+article-sort-order "date-asc"
 
-#browser firefox
-browser "open -g -a 'Google Chrome' %u"  # For work mac
-macro , open-in-browser
-macro v set browser "setsid -f mpv --really-quiet --no-terminal" ; open-in-browser ; set browser firefox
-
-# colors
-#include /usr/share/doc/newsboat/contrib/colorschemes/gruvbox
-
-# highlights
-highlight article "^(Title):.*$" blue default
-highlight article "https?://[^ ]+" red default
-highlight article "\\[image\\ [0-9]+\\]" green default
-
-# Reload config
+# --- Performance & Caching ---
 auto-reload yes
 reload-threads 2
 reload-time 30
+max-items 500
+
+# --- Notifications ---
+notify-always yes
+notify-format "Newsboat: %f unread feeds (%n new articles)"
+
+# --- External URL & Content Handling ---
+browser "`echo $BROWSER` %u"
+external-url-viewer "urlview"
+
+# --- UI & Information Density ---
+datetime-format "%d %b %Y"
+feedlist-format "%4i %n %?T??%-50t %-12u %T"
+articlelist-format "%4i %f  %-15D [%-20a] %t"
+feedlist-title-format    "Feeds - %u unread, %t total"
+articlelist-title-format "Articles in '%T' - %u unread, %t total"
+
+# --- Noise Suppression ---
+#ignore-article "*" "title =~ \"(Weekly Summary|This Week In)\""
