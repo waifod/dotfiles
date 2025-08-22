@@ -1,11 +1,12 @@
 # Manpages for commands and their aliases
+# https://github.com/eth-p/bat-extras/
 function man() {
   if [[ -v "aliases[$1]" ]]; then
     local alias_parts=( ${(z)aliases[$1]} )
     local cmd=${alias_parts[1]}
-    command man "$cmd" "${@:2}"
+    command batman "$cmd" "${@:2}"
   else
-    command man "$@"
+    command batman "$@"
   fi
 }
 

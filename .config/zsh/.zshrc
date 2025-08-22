@@ -38,12 +38,5 @@ bindkey "\C-n" history-beginning-search-forward
 # Use --paging=always to ensure bat always uses a pager.
 export PAGER="bat --paging=always"
 
-# This prevents raw ANSI codes from being produced.
-# The "-c" option tells the man page formatter to not use color.
-export MANROFFOPT="-c"
-
-# Ensure man pages also use bat for paging, with specific themes.
-export MANPAGER="sh -c 'col -bx | bat -l man --paging=always --theme=gruvbox-dark'"
-
 # Setup zoxide
 eval "$(zoxide init zsh --cmd cd)"
