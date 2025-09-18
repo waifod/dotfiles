@@ -32,7 +32,7 @@ opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 opt.mouse = "a" -- Enable mouse support
 opt.number = true -- Print the line number
 opt.pumheight = 10 -- Maximum number of items in completion menu
-opt.relativenumber = true -- Show relative line numbers
+opt.relativenumber = false -- Show absolute line numbers
 opt.scrolloff = 8 -- Lines of context around the cursor
 opt.shiftwidth = 2 -- Size of an indent
 opt.showmode = false -- Don't show the mode, lualine will do it
