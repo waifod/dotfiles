@@ -1,4 +1,12 @@
 return {
+  -- Learn Vim motions
+  {
+    "m4xshen/hardtime.nvim",
+    lazy = false,
+    dependencies = { "MunifTanjim/nui.nvim" },
+    opts = {},
+  },
+
   -- Add a custom keybinding for "Find Plugin File" to Telescope
   {
     "nvim-telescope/telescope.nvim",
