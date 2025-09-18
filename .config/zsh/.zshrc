@@ -1,9 +1,3 @@
-# Prompt configuration
-# Enables Powerlevel10k instant prompt. Should stay close to the top of ~/.config/zsh/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-source "$ZDOTDIR/.zsh_prompt"
-
 # History settings
 source "$ZDOTDIR/.zsh_history"
 
@@ -16,6 +10,9 @@ source "$ZDOTDIR/.zsh_plugins"
 # Aliases and functions
 source "$ZDOTDIR/.zsh_aliases"
 source "$ZDOTDIR/.zsh_functions"
+
+# Prompt configuration
+source "$ZDOTDIR/.zsh_prompt"
 
 # Completion settings
 source "$ZDOTDIR/.zsh_completions"

@@ -1,4 +1,4 @@
-# Work aliases
+
 alias bb="brazil-build"
 alias bws="brazil workspace"
 alias bmg='bemol --generate-vscode-ws $(basename $PWD).code-workspace'
