@@ -1,7 +1,14 @@
-# How to Store Dotfiles
+# dotfiles
+
+This repo contains my dotfiles, allowing for a consistent computing experience across multiple machines.
+These days I primarily use Arch Linux on my machines and MacOSX at work.
+
+## How to Store Dotfiles
+
 Please follow [this guide](https://www.atlassian.com/git/tutorials/dotfiles).
 
-# Tools
+## Tools
+
 * [bottom](https://github.com/ClementTsang/bottom)
 * [neovim](https://github.com/neovim/neovim)
 * [tmux](https://github.com/tmux/tmux)
@@ -9,5 +16,6 @@ Please follow [this guide](https://www.atlassian.com/git/tutorials/dotfiles).
 * [zsh](https://github.com/zsh-users/zsh)
 * bat
 * eza
-* fzf (to be added)
+* fd
+* fzf
 * keychain (key management)
