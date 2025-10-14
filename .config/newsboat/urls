@@ -26,7 +26,6 @@ https://planet.haskell.org/rss20.xml code
 https://neilmitchell.blogspot.com/feeds/posts/default?alt=rss code
 https://lexi-lambda.github.io/feeds/all.rss.xml code
 https://www.mmhaskell.com/blog?format=RSS code
-https://fpcomplete.com/atom.xml code
 https://markkarpov.com/feed.atom code
 http://comonad.com/reader/feed/ code math
 https://arxiv.org/rss/cs.LG/ arxiv
@@ -60,6 +59,10 @@ https://qntm.org/rss.php rat
 http://feeds.feedburner.com/TheBayesianConspiracy rat podcast
 https://edwardsnowden.substack.com/feed/ rat
 https://blog.pragmaticengineer.com/rss/ rat tech
+https://releases.rs/index.xml rust tech
+https://this-week-in-rust.org/atom.xml rust tech
+https://blog.rust-lang.org/feed.xml rust tech
+https://archlinux.org/feeds/news/ tech
 https://vitalik.eth.limo/feed.xml tech
 https://read.engineerscodex.com/feed tech
 https://thephd.dev/feed.xml cpp tech
