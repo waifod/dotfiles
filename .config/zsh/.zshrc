@@ -1,3 +1,7 @@
+
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+
 # History settings
 source "$ZDOTDIR/.zsh_history"
 
@@ -10,6 +14,9 @@ source "$ZDOTDIR/.zsh_plugins"
 # Aliases and functions
 source "$ZDOTDIR/.zsh_aliases"
 source "$ZDOTDIR/.zsh_functions"
+
+# Cross-platform tools
+source "$ZDOTDIR/.zsh_tools"
 
 # Prompt configuration
 source "$ZDOTDIR/.zsh_prompt"
@@ -40,3 +47,9 @@ export PAGER="bat --paging=always"
 
 # Setup zoxide
 eval "$(zoxide init zsh --cmd cd)"
+
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
+
+. "$HOME/.local/share/../bin/env"

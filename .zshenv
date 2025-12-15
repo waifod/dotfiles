@@ -23,4 +23,4 @@ export EDITOR="nvim"
 export VISUAL="$EDITOR"
 
 # Core PATH adjustments
-export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"

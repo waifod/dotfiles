@@ -1,0 +1,8 @@
+# Cross-platform tool configuration
+
+# Python/uv configuration
+# TODO: Set up uv on Linux system
+if command -v uv >/dev/null 2>&1; then
+    alias python='uv run python'
+    alias pip='uv pip'
+fi
