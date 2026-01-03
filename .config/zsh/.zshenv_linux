@@ -1,0 +1,5 @@
+# .zshenv_linux - Linux environment variables for ALL shells
+# Sourced from .zshenv (non-interactive + interactive)
+
+# Linux-specific PATH additions
+# Add any Linux-specific PATH modifications here

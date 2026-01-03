@@ -1,7 +1,7 @@
-# Cross-platform tool configuration
+# .zsh_tools - Cross-platform tool configuration for interactive shells
+# Sourced from .zshrc
 
-# Python/uv configuration
-# TODO: Set up uv on Linux system
+# Python/uv aliases (both macOS and Linux)
 if command -v uv >/dev/null 2>&1; then
     alias python='uv run python'
     alias pip='uv pip'

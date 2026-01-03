@@ -1,15 +1,8 @@
 # Completion loading
-# Enable Bash completion support in Zsh
-autoload bashcompinit && bashcompinit
+# Note: compinit is already called in .zshrc before this file is sourced
 
-# Load Zsh's native completion system with caching for performance
-if [[ -e "$ZDOTDIR/.zcompdump" && "$ZDOTDIR/.zcompdump" -nt "$ZDOTDIR/zsh_plugins.txt" ]]; then
-  autoload -Uz compinit
-  compinit -C
-else
-  autoload -Uz compinit
-  compinit
-fi
+# Bash completion support is already loaded in .zshrc
+# autoload bashcompinit && bashcompinit (removed - already done)
 
 # Auto-completes a path by typing the first letter of each directory
 setopt auto_menu

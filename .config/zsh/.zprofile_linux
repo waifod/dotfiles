@@ -1,0 +1,5 @@
+# .zprofile_linux - Linux login shell configuration
+# Sourced from .zprofile for login shells only
+
+# Set up SSH agent credentials (login-only action)
+eval $(keychain --eval --quiet --noask id_ed25519)

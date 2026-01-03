@@ -1,6 +1,21 @@
 
-# Kiro CLI pre block. Keep at the top of this file.
-[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+# Completion cache - regenerate daily, skip all security checks for speed
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
+    compinit -u
+else
+    compinit -C -u
+fi
+
+# Bash completion support (needed for AWS CLI and others)
+autoload bashcompinit && bashcompinit
+
+# OS-specific settings (sourced first so Kiro integration can be in .zsh_darwin)
+if [[ "$(uname)" == "Darwin" ]]; then
+    source "$ZDOTDIR/.zsh_darwin"
+else
+    source "$ZDOTDIR/.zsh_linux"
+fi
 
 # History settings
 source "$ZDOTDIR/.zsh_history"
@@ -27,13 +42,6 @@ source "$ZDOTDIR/.zsh_completions"
 # Secrets
 source "$ZDOTDIR/.zsh_secrets"
 
-# OS-specific settings
-if [[ "$(uname)" == "Darwin" ]]; then
-    source "$ZDOTDIR/.zsh_darwin"
-else
-    source "$ZDOTDIR/.zsh_linux"
-fi
-
 # Key bindings
 bindkey "^[[A" history-beginning-search-backward
 bindkey "^[[B" history-beginning-search-forward
@@ -47,9 +55,3 @@ export PAGER="bat --paging=always"
 
 # Setup zoxide
 eval "$(zoxide init zsh --cmd cd)"
-
-
-# Kiro CLI post block. Keep at the bottom of this file.
-[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
-
-. "$HOME/.local/share/../bin/env"

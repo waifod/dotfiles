@@ -1,19 +1,46 @@
+# .zsh_darwin - macOS-specific interactive shell configuration
+# Sourced from .zshrc for interactive shells only
+
+# Kiro CLI integration (macOS only) - Keep at the top
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
 
 # Brazil aliases (macOS-specific due to Brazil tooling)
 alias bb="brazil-build"
 alias bws="brazil workspace"
 alias bmg='bemol --generate-vscode-ws $(basename $PWD).code-workspace'
 
-# ensure to run `mwinit -o && kinit -f` on your cloud desktop first
-alias ninja-dev-ws=ninja-dev-sync -add "$(pwd)" -add-host clouddesk -add-remote /home/$(whoami)/workplace/"${PWD##*/}" -setup
+# AWS CLI completion (zsh) - compinit/bashcompinit already loaded in .zshrc
+if command -v aws_completer >/dev/null 2>&1; then
+    complete -C aws_completer aws
+fi
 
-# AWS CLI completion
-complete -C '/usr/local/bin/aws_completer' aws
+# NVM (Node Version Manager) - Lazy-loaded for performance
+# NVM_DIR is set in .zshenv
+# Functions are loaded on first use of nvm, node, or npm
+nvm() {
+    unset -f nvm node npm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    nvm "$@"
+}
 
-# NVM (Node Version Manager) - macOS only
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+node() {
+    unset -f nvm node npm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    node "$@"
+}
+
+npm() {
+    unset -f nvm node npm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    npm "$@"
+}
+
+# Java configuration (macOS only)
+# Add Java-specific environment variables here if needed
+# Example: export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 
 setup-credentials() {
   kinit
@@ -22,5 +49,7 @@ setup-credentials() {
   ssh clouddesk -t 'kinit -f && mwinit -s -o && ssh-add'
   ada cred update --once
   aws codeartifact login --region us-west-2 --tool npm --domain amazon --domain-owner 730335472693 --repository shared
-  screen -S ninja -d -m nohup ninja-dev-sync
 }
+
+# Kiro CLI integration (macOS only) - Keep at the bottom
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"

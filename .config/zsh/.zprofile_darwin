@@ -1,0 +1,10 @@
+# .zprofile_darwin - macOS login shell configuration
+# Sourced from .zprofile for login shells only
+
+# Kiro CLI integration (macOS only)
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zprofile.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zprofile.pre.zsh"
+
+# Add any one-time macOS initialization here
+
+# Kiro CLI integration (macOS only)
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zprofile.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zprofile.post.zsh"

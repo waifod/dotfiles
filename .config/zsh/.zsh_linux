@@ -1,0 +1,9 @@
+# .zsh_linux - Linux-specific interactive shell configuration
+# Sourced from .zshrc for interactive shells only
+
+# Add Linux-specific aliases, functions, and completions here
+# Examples:
+# - Package manager aliases (apt, pacman, yay, etc.)
+# - Linux-specific tool configurations
+# - Display server settings (X11, Wayland)
+# - systemd aliases
