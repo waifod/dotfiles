@@ -1,0 +1,98 @@
+#!/bin/zsh
+# Helper script to sync with remote machines using Unison
+
+set -e
+
+usage() {
+    cat <<EOF
+Usage: remote-sync [amazon|hetzner] [options]
+
+Sync your local workplace with remote machines using Unison.
+
+Profiles:
+  amazon   - Sync with Amazon Cloud Desktop
+  hetzner  - Sync with Hetzner instance
+
+Options:
+  -o       - Run once (don't repeat)
+  -i       - Interactive mode (ask for confirmations)
+  -f DIR   - Force direction: path to prefer (remote or local wins)
+  -h       - Show this help
+
+Examples:
+  remote-sync amazon              # Continuous sync with Amazon
+  remote-sync hetzner -o          # One-time sync with Hetzner
+  remote-sync amazon -i           # Interactive sync with Amazon
+  remote-sync amazon -f remote    # Prefer remote (remote wins conflicts)
+  remote-sync amazon -f local     # Prefer local (local wins conflicts)
+EOF
+    exit 0
+}
+
+if [[ $# -eq 0 ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    usage
+fi
+
+PROFILE="$1"
+shift
+
+# Validate profile
+if [[ "$PROFILE" != "amazon" ]] && [[ "$PROFILE" != "hetzner" ]]; then
+    echo "Error: Invalid profile '$PROFILE'. Must be 'amazon' or 'hetzner'."
+    echo "Run 'remote-sync -h' for help."
+    exit 1
+fi
+
+# Build unison command
+UNISON_ARGS=()
+FORCE_DIR=""
+
+# Parse options
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -o)
+            UNISON_ARGS+=(-repeat 0)
+            shift
+            ;;
+        -i)
+            UNISON_ARGS+=(-batch false -auto false)
+            shift
+            ;;
+        -f)
+            if [[ -z "$2" ]] || [[ "$2" == -* ]]; then
+                echo "Error: -f requires an argument (remote or local)"
+                usage
+            fi
+            if [[ "$2" != "remote" ]] && [[ "$2" != "local" ]]; then
+                echo "Error: -f argument must be 'remote' or 'local'"
+                usage
+            fi
+            FORCE_DIR="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown option: $1"
+            usage
+            ;;
+    esac
+done
+
+# Add force option if specified
+if [[ -n "$FORCE_DIR" ]]; then
+    if [[ "$PROFILE" == "amazon" ]]; then
+        REMOTE_PATH="ssh://clouddesk//workplace/dumatte"
+        LOCAL_PATH="/Volumes/workplace"
+    elif [[ "$PROFILE" == "hetzner" ]]; then
+        REMOTE_PATH="ssh://hetzner_fed//home/wfd/learning"
+        LOCAL_PATH="$HOME/learning"
+    fi
+    
+    if [[ "$FORCE_DIR" == "remote" ]]; then
+        UNISON_ARGS+=(-force "$REMOTE_PATH")
+    else
+        UNISON_ARGS+=(-force "$LOCAL_PATH")
+    fi
+fi
+
+echo "Starting Unison sync with $PROFILE profile..."
+UNISON="$HOME/.config/unison" unison "$PROFILE" "${UNISON_ARGS[@]}"

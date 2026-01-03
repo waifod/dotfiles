@@ -1,0 +1,67 @@
+# Unison profile for Hetzner instance
+# Manual: http://www.cis.upenn.edu/~bcpierce/unison/download/releases/stable/unison-manual.html
+
+# Roots of the synchronization
+root = /Users/dumatte/learning
+root = ssh://hetzner_fed//home/wfd/learning
+
+# Ignore rules for macOS
+ignore = Name {.DS_Store,.Spotlight-V100,.Trashes,.fseventsd,.TemporaryItems,.DocumentRevisions-V100}
+
+# Ignore rules for IDEs
+ignore = Path */{.metadata,.settings,.project,.classpath}
+ignore = Name {.iml,.iws}
+ignore = Path */.idea
+ignore = Path */.vscode
+
+# Ignore rules for vim
+ignore = Name {[._]*.s[a-v][a-z],[._]*.sw[a-p],[._]s[a-v][a-z],[._]sw[a-p],Session.vim,Sessionx.vim}
+
+# Ignore common build artifacts
+ignore = BelowPath */{node_modules,target,dist,build,__pycache__,.pytest_cache}
+ignore = Name {*.pyc,*.pyo,*.o,*.so,*.dylib}
+
+# Ignore version control
+ignore = Path */.git
+
+# Log files
+ignore = Name log{,s}/*.log{,.*}
+
+# Ignore ~/.unison/ config dir
+ignore = Path .unison
+
+# Case-sensitivity
+ignorecase = false
+
+# Poll files for changes every 5 seconds
+repeat = 5
+
+# Log output
+log = true
+logfile = /Users/dumatte/.config/unison/hetzner.log
+
+# Backup settings
+backup = Name *
+maxbackups = 5
+
+# Retry once on failure
+retry = 1
+
+# Auto-sync non-conflicting changes
+auto = true
+batch = true
+
+# Confirm big deletes
+confirmbigdeletes = true
+
+# Synchronize modification times
+times = true
+
+# Prefer newer version on conflict
+prefer = newer
+
+# Suppress messages
+terse = true
+contactquietly = true
+
+# vim: ft=dosini

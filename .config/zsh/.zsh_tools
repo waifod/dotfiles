@@ -6,3 +6,7 @@ if command -v uv >/dev/null 2>&1; then
     alias python='uv run python'
     alias pip='uv pip'
 fi
+
+# Remote build aliases (cross-platform)
+alias rhb="remote-build hetzner"                   # Remote build on Hetzner (default: make)
+alias rhbm="remote-build hetzner make"             # Remote make on Hetzner

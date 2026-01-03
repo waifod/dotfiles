@@ -1,0 +1,108 @@
+#!/bin/zsh
+# Helper script to run build commands on remote machines
+
+set -e
+
+usage() {
+    cat <<EOF
+Usage: remote-build [amazon|hetzner] [command]
+
+Run build commands on remote machines from your local workspace.
+
+Remotes:
+  amazon   - Run on Amazon Cloud Desktop
+  hetzner  - Run on Hetzner instance
+
+Commands:
+  If no command is provided, runs 'brazil-build release' (for Amazon)
+  or 'make' (for Hetzner) in the corresponding remote directory.
+
+Examples:
+  remote-build amazon                    # Run brazil-build release
+  remote-build amazon brazil-build test  # Run brazil-build test
+  remote-build amazon "bb && bb test"    # Run multiple commands
+  remote-build hetzner make              # Run make on Hetzner
+
+Notes:
+  - Automatically determines the remote path based on current directory
+  - For Amazon: Uses /workplace/dumatte/...
+  - For Hetzner: Uses /home/wfd/learning/...
+EOF
+    exit 0
+}
+
+if [[ $# -eq 0 ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    usage
+fi
+
+REMOTE="$1"
+shift
+
+# Validate remote
+if [[ "$REMOTE" != "amazon" ]] && [[ "$REMOTE" != "hetzner" ]]; then
+    echo "Error: Invalid remote '$REMOTE'. Must be 'amazon' or 'hetzner'."
+    echo "Run 'remote-build -h' for help."
+    exit 1
+fi
+
+# Detect OS
+OS_TYPE="$(uname -s)"
+
+# Determine current directory relative to sync root
+if [[ "$REMOTE" == "amazon" ]]; then
+    # Amazon is only available from macOS
+    if [[ "$OS_TYPE" != "Darwin" ]]; then
+        echo "Error: Amazon remote is only available from macOS."
+        exit 1
+    fi
+    SYNC_ROOT="/Volumes/workplace"
+    REMOTE_ROOT="/workplace/dumatte"
+    REMOTE_HOST="clouddesk"
+    DEFAULT_CMD="brazil-build release"
+else
+    # Hetzner works from both macOS and Linux
+    if [[ "$OS_TYPE" == "Darwin" ]]; then
+        SYNC_ROOT="$HOME/learning"
+    else
+        # On Linux (cloud desktop), use workplace
+        SYNC_ROOT="$HOME/workplace"
+    fi
+    REMOTE_ROOT="/home/wfd/learning"
+    REMOTE_HOST="hetzner_fed"
+    DEFAULT_CMD="make"
+fi
+
+# Get current directory
+CURRENT_DIR="$(pwd)"
+
+# Check if we're inside the sync root
+if [[ "$CURRENT_DIR" != "$SYNC_ROOT"* ]]; then
+    echo "Error: Current directory is not inside $SYNC_ROOT"
+    echo "You must be in a synced directory to use remote-build."
+    exit 1
+fi
+
+# Calculate relative path
+RELATIVE_PATH="${CURRENT_DIR#$SYNC_ROOT}"
+RELATIVE_PATH="${RELATIVE_PATH#/}"  # Remove leading slash if present
+
+# Build remote path
+if [[ -z "$RELATIVE_PATH" ]]; then
+    REMOTE_PATH="$REMOTE_ROOT"
+else
+    REMOTE_PATH="$REMOTE_ROOT/$RELATIVE_PATH"
+fi
+
+# Determine command to run
+if [[ $# -eq 0 ]]; then
+    CMD="$DEFAULT_CMD"
+else
+    CMD="$*"
+fi
+
+echo "Running on $REMOTE: $CMD"
+echo "Remote path: $REMOTE_PATH"
+echo ""
+
+# Run the command on remote
+ssh -t "$REMOTE_HOST" "cd '$REMOTE_PATH' && $CMD"
