@@ -14,8 +14,8 @@ article-sort-order "date-asc"
 # --- Performance & Caching ---
 auto-reload yes
 reload-threads 2
-reload-time 30
-max-items 500
+reload-time 60
+max-items 200
 
 # --- Notifications ---
 notify-always yes
@@ -33,4 +33,14 @@ feedlist-title-format    "Feeds - %u unread, %t total"
 articlelist-title-format "Articles in '%T' - %u unread, %t total"
 
 # --- Noise Suppression ---
-#ignore-article "*" "title =~ \"(Weekly Summary|This Week In)\""
+# Uncomment to filter out weekly summaries if they become overwhelming
+#ignore-article "*" "title =~ \"(Weekly Summary|Roundup)\""
+
+# --- Feed Display Priorities ---
+# Show unread counts more prominently for priority feeds
+show-read-feeds yes
+show-read-articles yes
+
+# --- Article Age ---
+# Keep articles for 30 days before cleanup
+keep-articles-days 30

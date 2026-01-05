@@ -1,126 +1,302 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Query Feeds
+# Newsboat RSS Feeds - Reorganized for Focus & Clarity
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 
+# Organization Philosophy:
+# - Priority feeds tagged for "Must Read Today" query
+# - Inactive feeds tagged as "archived" for reference
+# - Focus on: Embedded, Low-level, Performance, Linux/OS
 #
-# These are dynamic, virtual feeds based on filter expressions.
-# They must be enclosed in double quotes.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# An aggregated feed of all unread articles.
-"query:All Unread:unread = \"yes\""
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Query Feeds - Smart Filters
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# A "daily briefing" of all unread articles published in the last 24 hours.
-"query:Daily Briefing:unread = \"yes\" and age < 1"
+"query:📌 Must Read Today:unread = \"yes\" and age < 1 and tags # \"priority\""
+"query:📅 This Week:unread = \"yes\" and age < 7 and tags # \"priority\""
+"query:🔧 Systems & Performance:unread = \"yes\" and (tags # \"systems\" or tags # \"performance\" or tags # \"embedded\")"
+"query:🦀 Rust Ecosystem:unread = \"yes\" and tags # \"rust\""
+"query:🐧 Linux & Kernel:unread = \"yes\" and (tags # \"linux\" or tags # \"kernel\")"
+"query:🔒 Security:unread = \"yes\" and tags # \"security\""
+"query:📚 All Unread:unread = \"yes\""
+"query:📦 Archived Feeds:tags # \"archived\""
 
-# A meta-feed that aggregates all content tagged with "linux".
-"query:Linux News:tags # \"linux\""
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 1: Core Technical Interests (Priority)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# A meta-feed for all security-related content.
-"query:Security Briefing:tags # \"security\""
+# --- Embedded Development ---
+https://interrupt.memfault.com/blog/feed.xml "~Interrupt (Memfault)" embedded priority
+https://blog.rust-embedded.org/rss.xml "~Rust Embedded Blog" embedded rust
+https://ferrous-systems.com/blog/feed.xml "~Ferrous Systems" embedded rust
+https://mcuoneclipse.com/feed/ "~MCU on Eclipse" embedded
+https://blog.adafruit.com/feed/ "~Adafruit Blog" embedded hardware
 
-# An aggregated feed for Arch Linux news, using a hidden source feed.
-"query:Arch Linux Announcements:tags # \"archlinux\""
+# --- Systems & Low-Level Programming ---
+https://blog.cloudflare.com/rss/ "~Cloudflare Blog" systems priority
+https://jvns.ca/atom.xml "~Julia Evans" systems priority
+https://danluu.com/atom.xml "~Dan Luu" systems priority
+https://blog.nelhage.com/atom.xml "~Nelson Elhage" systems
+https://nullprogram.com/feed/ "~null program (Chris Wellons)" systems
+https://purplesyringa.moe/blog/feed.xml "~purplesyringa" systems
+https://os.phil-opp.com/rss.xml "~Writing an OS in Rust" systems rust
+https://research.swtch.com/feed.atom "~Russ Cox" systems
+https://fgiesen.wordpress.com/feed/ "~Fabian Giesen" systems performance
+https://blog.acolyer.org/feed/ "~The Morning Paper" systems research
 
-https://news.ycombinator.com/rss misc
-https://lobste.rs/rss
-https://planet.haskell.org/rss20.xml code
-https://neilmitchell.blogspot.com/feeds/posts/default?alt=rss code
-https://lexi-lambda.github.io/feeds/all.rss.xml code
-https://www.mmhaskell.com/blog?format=RSS code
-https://markkarpov.com/feed.atom code
-http://comonad.com/reader/feed/ code math
-https://arxiv.org/rss/cs.LG/ arxiv
-https://arxiv.org/rss/cs.DB/ arxiv
-https://arxiv.org/rss/cs.DC/ arxiv
-https://arxiv.org/rss/cs.DS/ arxiv
-https://arxiv.org/rss/cs.DM/ arxiv
-https://arxiv.org/rss/cs.FL/ arxiv
-https://arxiv.org/rss/cs.LO/ arxiv
-https://arxiv.org/rss/cs.OS/ arxiv
-https://golem.ph.utexas.edu/category/atom10.xml math
-http://math.andrej.com/feed.xml math
-https://themonadreader.wordpress.com/feed/ math
-https://bartoszmilewski.com/feed/ math
-https://jonathanweisberg.org/index.xml math philosophy
-https://www.math.columbia.edu/~woit/wordpress/?feed=rss2 math science
-https://www.lesswrong.com/feed.xml?view=curated-rss "~LessWrong - Curated" rat
-https://www.lesswrong.com/feed.xml rat
-https://astralcodexten.substack.com/feed/ rat
-https://slatestarcodex.com/feed/ rat
-https://thezvi.substack.com/feed/ rat
-https://www.overcomingbias.com/feed/ rat
-https://putanumonit.com/feed/ rat
-https://gwern.substack.com/feed/ rat
-https://blog.jaibot.com/feed/ rat
-http://www.aaronsw.com/2002/feeds/pgessays.rss rat
-https://aella.substack.com/feed/ rat
-https://www.scottaaronson.blog/?feed=rss2 rat
-https://rootsofprogress.org/feed.xml rat
-https://qntm.org/rss.php rat
-http://feeds.feedburner.com/TheBayesianConspiracy rat podcast
-https://edwardsnowden.substack.com/feed/ rat
-https://blog.pragmaticengineer.com/rss/ rat tech
-https://releases.rs/index.xml rust tech
-https://this-week-in-rust.org/atom.xml rust tech
-https://blog.rust-lang.org/feed.xml rust tech
-https://archlinux.org/feeds/news/ tech
-https://vitalik.eth.limo/feed.xml tech
-https://read.engineerscodex.com/feed tech
-https://thephd.dev/feed.xml cpp tech
-https://xania.org/feed.atom cpp tech
-https://www.cppstories.com/index.xml cpp tech
-https://simontoth.substack.com/feed/ cpp tech
-https://meetingcpp.com/feed.xml cpp tech
-https://www.modernescpp.com/index.php/feed/ cpp tech
-https://isocpp.org/blog/rss/ cpp tech
-https://randomascii.wordpress.com/feed/ cpp tech
-https://www.sandordargo.com/feed.xml cpp tech
-https://arne-mertz.de/feed/ cpp tech
-https://herbsutter.com/feed/ cpp tech
-https://devblogs.microsoft.com/cppblog/feed/ cpp tech
-https://without.boats/index.xml rust tech
-https://fasterthanli.me/index.xml rust tech
-https://terminaltrove.com/blog.xml tech
-http://econlog.econlib.org/index.xml econ
-https://feeds.feedburner.com/marginalrevolution/feed econ
-https://www.bloomberg.com/opinion/authors/AS6n2t3d_iA/tyler-cowen.rss econ
-https://www.bloomberg.com/opinion/authors/ARbTQlRLRjE/matthew-s-levine.rss econ
-https://bam.kalzumeus.com/archive/rss/ econ
-https://jbconsulting.substack.com/feed/ econ
-https://noahpinion.substack.com/feed/ econ
-https://www.bitsaboutmoney.com/archive/rss/ econ
-https://alexanderwales.com/feed/ fun
-https://www.hpmor.com/rss.xml fun
-https://www.xkcd.com/rss.xml fun
-https://existentialcomics.com/rss.xml fun
-https://www.smbc-comics.com/rss.php fun
-https://phdcomics.com/gradfeed.php fun
-https://feeds.feedburner.com/Zerocalcareit?format=xml fun
-https://www.commitstrip.com/en/feed/ fun
-https://www.businesscat.happyjar.com/feed/ fun
-https://lukesmith.xyz/rss.xml ls tech
-https://notrelated.xyz/rss ls podcast
-https://danyspin97.org/index.xml tech
-https://blog.janestreet.com/feed.xml tech
-https://www.phoronix.com/rss.php tech
-https://lukesmith.xyz/peertube ls tech video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg tech video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCEbYhDd6c6vngsF5PQpFVWg tech video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q rat philosophy video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCLB7AzTwc6VFZrBsO2ucBMg rat video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCNvsIonJdJ5E4EXMa65VYpA video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCvFApMFo_AafXbHRyEJefjA video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCFhXFikryT4aFcLkLw2LBLA video
-https://www.youtube.com/feeds/videos.xml?channel_id=UC1D3yD4wlPMico0dss264XA video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCXgoptkiXWRHuaPV1-E5NPg video
-https://www.youtube.com/feeds/videos.xml?channel_id=UC2C_jShtL725hvbm1arSV9w video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCIPsK5xspHC3-ZFNPTx2X_w video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCMxsVULY_qsk_aNdAqzcNUA video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCo1Evcw4Yx3QpOyCiRQLJxg video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCJe-IA-aR-yCarazWxbEmfQ video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCmK9CwltTxukOgeI0v5m_jA video
-https://www.youtube.com/feeds/videos.xml?channel_id=UChn336v-fUYkJH09vA4ZuCA video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCTJInu-7PDDsWA26xcWW6KA video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCpF62eV02XJpqJxBZAcsDCw video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCr4qATkzm8BXV9C0l0JImlg video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCYXpatz5Z4ek0M_5VR-Qt1A video
+# --- Performance Engineering ---
+https://www.brendangregg.com/blog/rss.xml "~Brendan Gregg" performance priority
+https://easyperf.net/feed.xml "~Easyperf (Denis Bakhvalov)" performance priority
+https://pdziepak.github.io/feed.xml "~Pawel Dziepak" performance
+https://randomascii.wordpress.com/feed/ "~Random ASCII (Bruce Dawson)" cpp performance
+https://travisdowns.github.io/feed.xml "~Travis Downs" performance
+https://johnysswlab.com/feed/ "~Johny's Software Lab" performance
+
+# --- Linux & Kernel Development ---
+https://lwn.net/headlines/rss "~LWN.net" linux kernel priority
+https://lwn.net/headlines/newrss "~LWN.net (Kernel Only)" linux kernel
+https://www.kernel.org/feeds/kdist.xml "~Kernel.org" linux kernel
+https://archlinux.org/feeds/news/ "~Arch Linux News" linux archlinux priority
+
+# --- Rust ---
+https://blog.rust-lang.org/feed.xml "~Rust Blog (Official)" rust priority
+https://blog.rust-lang.org/inside-rust/feed.xml "~Rust Internals Blog" rust
+https://this-week-in-rust.org/atom.xml "~This Week in Rust" rust priority
+https://releases.rs/index.xml "~Rust Releases" rust
+https://without.boats/index.xml "~Without Boats" rust
+https://fasterthanli.me/index.xml "~fasterthanlime" rust priority
+https://blog.yoshuawuyts.com/rss.xml "~Yoshua Wuyts" rust
+https://smallcultfollowing.com/babysteps/atom.xml "~Baby Steps (Niko Matsakis)" rust
+https://blog.m-ou.se/index.xml "~Mara Bos" rust
+
+# --- C++ (Systems & Performance Focus) ---
+https://herbsutter.com/feed/ "~Herb Sutter" cpp priority
+https://randomascii.wordpress.com/feed/ "~Random ASCII (Bruce Dawson)" cpp performance
+https://www.cppstories.com/index.xml "~C++ Stories" cpp
+https://meetingcpp.com/feed.xml "~Meeting C++" cpp
+https://devblogs.microsoft.com/cppblog/feed/ "~Visual C++ Team Blog" cpp
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 2: Technical Depth
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# --- Compilers & Programming Languages ---
+https://blog.sigplan.org/feed/ "~SIGPLAN Blog" pl
+https://blog.regehr.org/feed "~John Regehr" pl compilers
+
+# --- Distributed Systems ---
+https://brooker.co.za/blog/rss.xml "~Marc Brooker" distributed systems
+https://aphyr.com/posts.atom "~Aphyr (Kyle Kingsbury)" distributed systems
+
+# --- Database Internals ---
+https://www.scattered-thoughts.net/atom.xml "~Scattered Thoughts (Jamie Brandon)" databases
+
+# --- Security & Cryptography ---
+https://blog.cryptographyengineering.com/feed/ "~Cryptography Engineering" security crypto priority
+https://www.schneier.com/blog/atom.xml "~Bruce Schneier" security priority
+https://lcamtuf.blogspot.com/feeds/posts/default "~lcamtuf" security
+https://googleprojectzero.blogspot.com/feeds/posts/default "~Google Project Zero" security priority
+https://blog.trailofbits.com/feed/ "~Trail of Bits" security systems
+
+# --- Formal Methods & Type Theory ---
+https://www.hillelwayne.com/post/index.xml "~Hillel Wayne" formal-methods priority
+https://alastairreid.github.io/feed.xml "~Alastair Reid" formal-methods
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 3: Aggregators & News (Curated)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://news.ycombinator.com/rss "~Hacker News" priority
+https://lobste.rs/rss "~Lobsters" priority
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 4: Functional Programming & Theory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://planet.haskell.org/rss20.xml "~Planet Haskell" code fp
+https://neilmitchell.blogspot.com/feeds/posts/default?alt=rss "~Neil Mitchell" code fp archived
+https://lexi-lambda.github.io/feeds/all.rss.xml "~Lexi Lambda" code fp
+https://www.mmhaskell.com/blog?format=RSS "~Monday Morning Haskell" code fp
+https://markkarpov.com/feed.atom "~Mark Karpov" code fp archived
+http://comonad.com/reader/feed/ "~Comonad Reader" code fp math archived
+https://bartoszmilewski.com/feed/ "~Bartosz Milewski" math fp priority
+https://golem.ph.utexas.edu/category/atom10.xml "~n-Category Café" math priority
+http://math.andrej.com/feed.xml "~Andrej Bauer" math
+https://themonadreader.wordpress.com/feed/ "~The Monad Reader" math fp archived
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 5: Research (Selective)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://arxiv.org/rss/cs.OS/ "~ArXiv: Operating Systems" arxiv
+https://arxiv.org/rss/cs.LG/ "~ArXiv: Machine Learning" arxiv
+https://arxiv.org/rss/cs.DB/ "~ArXiv: Databases" arxiv
+https://arxiv.org/rss/cs.DC/ "~ArXiv: Distributed Computing" arxiv
+https://arxiv.org/rss/cs.DS/ "~ArXiv: Data Structures" arxiv
+https://arxiv.org/rss/cs.DM/ "~ArXiv: Discrete Math" arxiv
+https://arxiv.org/rss/cs.FL/ "~ArXiv: Formal Languages" arxiv
+https://arxiv.org/rss/cs.LO/ "~ArXiv: Logic" arxiv
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 6: Mathematics (Selective)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://www.math.columbia.edu/~woit/wordpress/?feed=rss2 "~Not Even Wrong (Peter Woit)" math science
+https://terrytao.wordpress.com/feed/ "~Terence Tao" math
+https://gowers.wordpress.com/feed/ "~Timothy Gowers" math
+https://jonathanweisberg.org/index.xml "~Jonathan Weisberg" math philosophy archived
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 7: Rationalist Community (Curated Only)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://www.lesswrong.com/feed.xml?view=curated-rss "~LessWrong - Curated" rat priority
+https://astralcodexten.substack.com/feed/ "~Astral Codex Ten (Scott Alexander)" rat priority
+https://slatestarcodex.com/feed/ "~Slate Star Codex (Archive)" rat archived
+https://thezvi.substack.com/feed/ "~The Zvi" rat
+https://www.overcomingbias.com/feed/ "~Overcoming Bias (Robin Hanson)" rat
+https://putanumonit.com/feed/ "~Put A Num On It (Jacob Falkovich)" rat
+https://gwern.substack.com/feed/ "~Gwern" rat archived
+https://www.scottaaronson.blog/?feed=rss2 "~Shtetl-Optimized (Scott Aaronson)" rat
+https://rootsofprogress.org/feed.xml "~Roots of Progress" rat
+https://alexanderwales.com/feed/ "~Alexander Wales" rat scifi
+https://www.hpmor.com/rss.xml "~HPMOR" fun scifi archived
+https://qntm.org/rss.php "~qntm" rat scifi
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 8: Economics & Finance (Selective)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://econlog.econlib.org/index.xml "~EconLog" econ
+https://feeds.feedburner.com/marginalrevolution/feed "~Marginal Revolution" econ priority
+https://www.bloomberg.com/opinion/authors/AS6n2t3d_iA/tyler-cowen.rss "~Tyler Cowen (Bloomberg)" econ
+https://www.bloomberg.com/opinion/authors/ARbTQlRLRjE/matthew-s-levine.rss "~Matt Levine (Money Stuff)" econ priority
+https://bam.kalzumeus.com/archive/rss/ "~Kalzumeus (Patrick McKenzie)" econ tech
+https://jbconsulting.substack.com/feed/ "~JB Consulting" econ
+https://noahpinion.substack.com/feed/ "~Noahpinion" econ
+https://www.bitsaboutmoney.com/archive/rss/ "~Bits About Money (Patrick McKenzie)" econ tech
+https://edwardsnowden.substack.com/feed/ "~Edward Snowden" security privacy archived
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 9: Engineering Culture & Career
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://blog.pragmaticengineer.com/rss/ "~The Pragmatic Engineer" tech priority
+https://read.engineerscodex.com/feed "~Engineer's Codex" tech
+https://blog.janestreet.com/feed.xml "~Jane Street Tech Blog" tech fp priority
+https://charity.wtf/feed/ "~Charity Majors" tech
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 10: General Tech & Linux
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://www.phoronix.com/rss.php "~Phoronix" tech linux
+https://terminaltrove.com/blog.xml "~Terminal Trove" tech linux
+https://danyspin97.org/index.xml "~Danilo Spinella" tech linux
+https://lukesmith.xyz/rss.xml "~Luke Smith" tech linux
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 11: Comics (Selective)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+https://www.xkcd.com/rss.xml "~xkcd" fun
+https://existentialcomics.com/rss.xml "~Existential Comics" fun
+https://www.smbc-comics.com/rss.php "~SMBC" fun
+https://phdcomics.com/gradfeed.php "~PhD Comics" fun archived
+https://www.businesscat.happyjar.com/feed/ "~Business Cat" fun archived
+https://www.commitstrip.com/en/feed/ "~CommitStrip" fun archived
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 12: Video Content (Organized by Topic)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Tech & Programming - Systems/Low-Level
+https://www.youtube.com/feeds/videos.xml?channel_id=UCYXpatz5Z4ek0M_5VR-Qt1A "~Ben Eater" video tech embedded
+https://www.youtube.com/feeds/videos.xml?channel_id=UC56l7uZA209tlPTVOJiJ8Tw "~Low Byte Productions" video tech embedded
+https://www.youtube.com/feeds/videos.xml?channel_id=UC3S8vxwRfqLBdIhgRlDRVzw "~stacksmashing" video tech hardware
+https://www.youtube.com/feeds/videos.xml?channel_id=UC-yuWVUplUJZvieEligKBkA "~javidx9" video tech
+https://www.youtube.com/feeds/videos.xml?channel_id=UCAMu6Dso0ENoNm3sKpQsy0g "~Nir Lichtman" video tech
+
+# Tech & Programming - General
+https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg "~Two Minute Papers" video tech
+https://www.youtube.com/feeds/videos.xml?channel_id=UCEbYhDd6c6vngsF5PQpFVWg "~Tsoding" video tech
+https://www.youtube.com/feeds/videos.xml?channel_id=UCrqM0Ym_NbK1fqeQG2VIohg "~Tsoding Daily" video tech
+https://www.youtube.com/feeds/videos.xml?channel_id=UCWQaM7SpSECp9FELz-cHzuQ "~Dreams of Code" video tech
+https://www.youtube.com/feeds/videos.xml?channel_id=UCo71RUe6DX4w-Vd47rFLXPg "~typecraft" video tech
+https://www.youtube.com/feeds/videos.xml?channel_id=UCsi5-meDM5Q5NE93n_Ya7GA "~Nick" video tech
+https://www.youtube.com/feeds/videos.xml?channel_id=UCf4tsZfSZlBx2QusJg3HJew "~Marco Codes" video tech
+https://www.youtube.com/feeds/videos.xml?channel_id=UCKTehwyGCKF-b2wo0RKwrcg "~Bisqwit" video tech
+https://lukesmith.xyz/peertube "~Luke Smith (PeerTube)" video tech
+
+# Rust
+https://www.youtube.com/feeds/videos.xml?channel_id=UC_iD0xppBwwsrM9DegC5cQQ "~Jon Gjengset" video rust
+https://www.youtube.com/feeds/videos.xml?channel_id=UCs4fQRyl1TJvoeOdekW6lYA "~fasterthanlime" video rust
+https://www.youtube.com/feeds/videos.xml?channel_id=UC0jzvznwtnsdXYIp415oC9g "~Rust Foundation" video rust
+
+# Compilers & Tools
+https://www.youtube.com/feeds/videos.xml?channel_id=UCC3kVzi4cWpLl16KmzsEtiQ "~Matt Godbolt" video compilers
+
+# Computer Science Education
+https://www.youtube.com/feeds/videos.xml?channel_id=UCSVKswAwikRd8ZS3AmSnuKg "~IEEE Computer Society" video cs
+https://www.youtube.com/feeds/videos.xml?channel_id=UCWj1EuRTnYn4in__Wanxl9g "~CMSC 125: Operating Systems" video cs
+https://www.youtube.com/feeds/videos.xml?channel_id=UCzf_XjIoKSf4Ve2fH7xn-3A "~David Black-Schaffer" video cs
+https://www.youtube.com/feeds/videos.xml?channel_id=UCPXSca90oe5-vcH9eU730gQ "~DepthBuffer" video cs
+https://www.youtube.com/feeds/videos.xml?channel_id=UCPSsA8oxlSBjidJsSPdpjsQ "~Prof. Dr. Ben H. Juurlink" video cs
+https://www.youtube.com/feeds/videos.xml?channel_id=UCFjVIEm27hEYi5u2ua-26cg "~HPC Education" video cs
+
+# Engineering & Science
+https://www.youtube.com/feeds/videos.xml?channel_id=UChn336v-fUYkJH09vA4ZuCA "~Technology Connections" video
+https://www.youtube.com/feeds/videos.xml?channel_id=UCMxsVULY_qsk_aNdAqzcNUA "~Practical Engineering" video
+
+# Math & Theory
+https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw "~3Blue1Brown" video math
+https://www.youtube.com/feeds/videos.xml?channel_id=UC6_J0wZdqcoRVs0Mck922SQ "~Sheafification of G" video math
+https://www.youtube.com/feeds/videos.xml?channel_id=UCiNLr9wX35KksK77mrQgxiw "~2swap" video math
+
+# Tech Companies & Organizations
+https://www.youtube.com/feeds/videos.xml?channel_id=UCfX55Sx5hEFjoC3cNs6mCUQ "~The Linux Foundation" video linux
+
+# Conferences & Events
+https://www.youtube.com/feeds/videos.xml?channel_id=UCMlGfpWw-RUdWX_JbLCukXg "~CppCon" video conference systems
+https://www.youtube.com/feeds/videos.xml?channel_id=UCJpMLydEYA08vusDkq3FmjQ "~Meeting Cpp" video conference systems
+https://www.youtube.com/feeds/videos.xml?channel_id=UCAczr0j6ZuiVaiGFZ4qxApw "~cpponsea" video conference systems
+https://www.youtube.com/feeds/videos.xml?channel_id=UCJhay24LTpO1s4bIZxuIqKw "~ACCU Conference" video conference systems
+https://www.youtube.com/feeds/videos.xml?channel_id=UCYI-TL0LoFRl1gFnnUFwdow "~Better Software Conference" video conference tech
+
+# Tech - Performance & Systems
+https://www.youtube.com/feeds/videos.xml?channel_id=UCl4L95btMdXiThp_VayURBA "~HFT and Market Making" video tech performance systems
+
+# Finance
+https://www.youtube.com/feeds/videos.xml?channel_id=UCASM0cgfkJxQ1ICmRilfHLw "~Patrick Boyle" video finance
+
+# Entertainment & Fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UCFhXFikryT4aFcLkLw2LBLA "~NileRed" video fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UC1D3yD4wlPMico0dss264XA "~NileBlue" video fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UCVovvq34gd0ps5cVYNZrc7A "~Explosions&Fire" video fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UCvFApMFo_AafXbHRyEJefjA "~Extractions&Ire" video fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UCm9K6rby98W8JigLoZOh6FQ "~LockPickingLawyer" video fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UCu7ODDeIZ4x1rJwM1LCVL8w "~Thebausffs" video fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UCpF62eV02XJpqJxBZAcsDCw "~Il Matthew del Tubo" video fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UCMxsVULY_qsk_aNdAqzcNUA "~YotobiGames" video fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UCc3HibyiC533UtI99sikiJg "~tenmo player" video fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UCkOu814wigKaeu-b2hFdU6w "~Pianta" video fun
+https://www.youtube.com/feeds/videos.xml?channel_id=UCLyv51OBZXfVoCOfq1WvKRQ "~Piantwo" video fun
+
+# Dance
+https://www.youtube.com/feeds/videos.xml?channel_id=UCfj7AWsWpoR1AgxPI6VQ9wA "~Marius & Elena Official" video dance
+https://www.youtube.com/feeds/videos.xml?channel_id=UChuxiWdk_ORX-tIQi0J8KRw "~David y Yasmin Bachata" video dance
+https://www.youtube.com/feeds/videos.xml?channel_id=UCp8F6v8sWjtrP0CCHslLJTg "~Valentín & Angy Bachata" video dance
+
+# Rationalist & Philosophy
+https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q "~Kurzgesagt" video rat philosophy
+https://www.youtube.com/feeds/videos.xml?channel_id=UCLB7AzTwc6VFZrBsO2ucBMg "~CGP Grey" video rat
+https://www.youtube.com/feeds/videos.xml?channel_id=UC2C_jShtL725hvbm1arSV9w "~CGP Grey (Main)" video rat
+https://www.youtube.com/feeds/videos.xml?channel_id=UCNvsIonJdJ5E4EXMa65VYpA "~ContraPoints" video philosophy
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TIER 13: Podcasts
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+http://feeds.feedburner.com/TheBayesianConspiracy "~The Bayesian Conspiracy" podcast rat
+https://notrelated.xyz/rss "~Not Related" podcast archived
