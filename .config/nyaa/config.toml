@@ -1,0 +1,14 @@
+theme = "Gruvbox"
+default_source = "Nyaa"
+download_client = "RunCommand"
+timeout = 30
+scroll_padding = 3
+cursor_padding = 4
+save_config_on_change = true
+hot_reload_config = true
+
+[client.command]
+cmd = "/home/wfd/.local/bin/torrent-start.sh '{magnet}' '{title}'"
+shell_cmd = "sh -c"
+
+[source]
