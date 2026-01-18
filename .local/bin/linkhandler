@@ -1,6 +1,6 @@
 #!/bin/sh
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# linkhandler - Universal, Cross-Platform URL Dispatcher for Newsboat
+# linkhandler - Universal, cross-platform URL dispatcher
 #
 # This script inspects a given URL and opens it with the most appropriate
 # application. It is designed to work on both Linux (Wayland/X11) and macOS.
