@@ -64,6 +64,7 @@ return {
     opts = {
       ensure_installed = {
         "bash",
+        "c",
         "css",
         "dockerfile",
         "html",
@@ -79,7 +80,6 @@ return {
         "typescript",
         "json",
         "json5",
-        "jsonc",
       },
       auto_install = true,
     },
