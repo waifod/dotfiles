@@ -14,8 +14,6 @@ autocmd("FileType", {
   group = my_augroup,
   pattern = {
     "gitcommit",
-    "java",
-    "scala",
     "typescript",
     "markdown",
     "text",

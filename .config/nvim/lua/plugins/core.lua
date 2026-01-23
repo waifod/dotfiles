@@ -45,29 +45,7 @@ return {
   -- Change trouble config
   {
     "folke/trouble.nvim",
-    opts = { use_diagnostic_signs = true },
-  },
-
-  -- Override nvim-cmp and add cmp-emoji
-  {
-    "hrsh7th/nvim-cmp",
-    dependencies = { "hrsh7th/cmp-emoji" },
-    opts = function(_, opts)
-      table.insert(opts.sources, { name = "emoji" })
-    end,
-  },
-
-  -- Add extra language support via LazyVim's extras
-  {
-    "LazyVim/LazyVim",
-    opts = {
-      extras = {
-        -- add typescript, treesitter, lspconfig and mason
-        "lazyvim.plugins.extras.lang.typescript",
-        -- add json, json5 and jsonc support, lspconfig and schemastore
-        "lazyvim.plugins.extras.lang.json",
-      },
-    },
+    opts = {},
   },
 
   -- Override neo-tree to display it on the right
@@ -99,7 +77,6 @@ return {
         "yaml",
         "tsx",
         "typescript",
-        "java",
         "json",
         "json5",
         "jsonc",
@@ -116,11 +93,6 @@ return {
         "stylua",
         "shellcheck",
         "shfmt",
-        "flake8",
-        "jdtls",
-        "pyright",
-        "typescript-language-server",
-        "rust-analyzer",
       },
     },
   },
@@ -134,19 +106,7 @@ return {
     },
   },
 
-  -- Configure conform.nvim for formatting. This replaces your autocmd.lua.
-  -- LazyVim already includes and configures `conform.nvim`. We just override it.
-  {
-    "stevearc/conform.nvim",
-    opts = {
-      formatters_by_ft = {
-        java = { "prettier" },
-        -- Disable auto-formatting for java as requested
-        -- To enable it, you'd configure it here.
-        -- We'll just leave it out to disable it.
-      },
-    },
-  },
+
 
   -- Plugin specification for codecompanion.nvim
   {
