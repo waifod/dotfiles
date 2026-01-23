@@ -4,14 +4,14 @@ return {
   -- Enable the LazyVim TypeScript "extra".
   { import = "lazyvim.plugins.extras.lang.typescript" },
 
-  -- Ensure TypeScript tools are installed by Mason.
+  -- TypeScript tooling (all via Mason).
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
-        "typescript-language-server",
-        "prettierd",
-        "eslint_d",
+        "typescript-language-server", -- LSP
+        "prettierd",                  -- formatter
+        "eslint_d",                   -- linter
       },
     },
   },

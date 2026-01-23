@@ -14,7 +14,7 @@ export PATH="/usr/local/bin/aws_completer:/opt/homebrew/opt/llvm/bin:/opt/homebr
 export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
 export PATH="$PATH:/Users/dumatte/Library/Application Support/JetBrains/Toolbox/scripts"
 
-# NVM directory (actual loading happens in .zsh_darwin for interactive shells)
+# NVM directory (lazy-loading in .zsh_tools for interactive shells)
 export NVM_DIR="$HOME/.nvm"
 
 # macOS-specific environment variables

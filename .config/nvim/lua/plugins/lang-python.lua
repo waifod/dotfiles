@@ -4,15 +4,16 @@ return {
   -- Enable the LazyVim Python "extra".
   { import = "lazyvim.plugins.extras.lang.python" },
 
-  -- Ensure Python tools are installed by Mason.
-  -- Required: ty, mypy, ruff (uncomment if not installed system-wide).
+  -- Python tooling.
+  -- Commented entries are installed system-wide; uncomment to use Mason instead.
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
-        "debugpy",
-        -- "mypy",
-        -- "ruff",
+        "debugpy", -- debug adapter
+        -- "ty",   -- type checker & LSP (system-wide)
+        -- "ruff", -- linter & formatter (system-wide)
+        -- "mypy", -- type checker for CI (system-wide)
       },
     },
   },
@@ -53,13 +54,14 @@ return {
   },
 
   -- Disable pyright (we're using ty instead).
+  -- ty and ruff are installed system-wide, not via Mason.
   {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
         pyright = { enabled = false },
-        ty = {},
-        ruff = {},
+        ty = { mason = false },
+        ruff = { mason = false },
       },
     },
   },

@@ -87,7 +87,7 @@ return {
 
   -- Configure mason to ensure specific tools are installed
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
         "stylua",
@@ -104,54 +104,5 @@ return {
     opts = {
       suppressed_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
     },
-  },
-
-
-
-  -- Plugin specification for codecompanion.nvim
-  {
-    "olimorris/codecompanion.nvim",
-    -- Essential dependencies for codecompanion.nvim
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    -- Configuration function executed after the plugin is loaded
-    config = function()
-      require("codecompanion").setup({
-        -- Configure specific LLM adapters
-        adapters = {
-          -- Configuration for the Gemini adapter
-          gemini = function()
-            return require("codecompanion.adapters").extend("gemini", {
-              -- Specify the official Gemini 2.5 Pro model identifier
-              model = "gemini-2.5-pro",
-              -- The GEMINI_API_KEY environment variable will be automatically
-              -- detected and used by codecompanion.nvim's default behavior.[2]
-              -- For explicit control or if using a different environment variable name,
-              -- you could uncomment and use the 'env' table:
-              -- env = {
-              --   api_key = vim.env.GEMINI_API_KEY, -- Or vim.env.YOUR_CUSTOM_GEMINI_ENV_VAR
-              -- },
-            })
-          end,
-        },
-        -- Optionally, set default strategies to use the Gemini adapter
-        -- This ensures Gemini is the default for chat and inline interactions.
-        strategies = {
-          chat = {
-            adapter = "gemini",
-          },
-          inline = {
-            adapter = "gemini",
-          },
-        },
-        -- Optional: Enable debug logging for detailed troubleshooting.
-        -- Uncomment the 'opts' table below to activate.
-        -- opts = {
-        --   log_level = "DEBUG", -- Set to "TRACE" for even more verbose logging [1]
-        -- },
-      })
-    end,
   },
 }

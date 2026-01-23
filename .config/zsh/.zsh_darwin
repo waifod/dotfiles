@@ -19,46 +19,19 @@ if command -v aws_completer >/dev/null 2>&1; then
     complete -C aws_completer aws
 fi
 
-# NVM (Node Version Manager) - Lazy-loaded for performance
-# NVM_DIR is set in .zshenv
-# Functions are loaded on first use of nvm, node, or npm
-nvm() {
-    unset -f nvm node npm
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-    nvm "$@"
-}
-
-node() {
-    unset -f nvm node npm
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-    node "$@"
-}
-
-npm() {
-    unset -f nvm node npm
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-    npm "$@"
-}
-
-# Java configuration (macOS only)
-# Add Java-specific environment variables here if needed
-# Example: export JAVA_HOME=$(/usr/libexec/java_home -v 17)
-
+# Amazon credentials setup (macOS work machine only)
 setup-credentials() {
-  kinit
-  mwinit -s
-  ssh-add
-  ssh clouddesk -t 'kinit -f && mwinit -s -o && ssh-add'
-  ada cred update --once
-  aws codeartifact login --region us-west-2 --tool npm --domain amazon --domain-owner 730335472693 --repository shared
-  
-  # Start Unison sync with Amazon cloud desktop in background
-  echo "Starting Unison sync with Amazon cloud desktop..."
-  remote-sync amazon &
-  disown
+    kinit
+    mwinit -s
+    ssh-add
+    ssh clouddesk -t 'kinit -f && mwinit -s -o && ssh-add'
+    ada cred update --once
+    aws codeartifact login --region us-west-2 --tool npm --domain amazon --repository shared
+
+    # Start Unison sync with Amazon cloud desktop in background
+    echo "Starting Unison sync with Amazon cloud desktop..."
+    remote-sync amazon &
+    disown
 }
 
 # Kiro CLI integration (macOS only) - Keep at the bottom

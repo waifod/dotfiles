@@ -4,14 +4,24 @@ return {
   -- Enable the LazyVim Rust "extra".
   { import = "lazyvim.plugins.extras.lang.rust" },
 
-  -- Ensure Rust tools are installed by Mason.
-  -- Required: rust-analyzer (uncomment if not installed via rustup).
+  -- Rust tooling.
+  -- Commented entries are installed system-wide; uncomment to use Mason instead.
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
-        -- "rust-analyzer",
-        "codelldb",
+        "codelldb", -- debug adapter
+        -- "rust-analyzer", -- LSP (system-wide via rustup)
+      },
+    },
+  },
+
+  -- Prevent LazyVim from auto-installing rust-analyzer via Mason (installed via rustup).
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        rust_analyzer = { mason = false },
       },
     },
   },
