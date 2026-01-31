@@ -1,6 +1,11 @@
 # .zsh_tools - Cross-platform tool configuration for interactive shells
 # Sourced from .zshrc
 
+# mise - runtime version manager (Node, etc.)
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate zsh)"
+fi
+
 # Python/uv aliases (both macOS and Linux)
 if command -v uv >/dev/null 2>&1; then
     alias python='uv run python'
@@ -10,39 +15,3 @@ fi
 # Remote build aliases (cross-platform)
 alias rhb="remote-build hetzner"                   # Remote build on Hetzner (default: make)
 alias rhbm="remote-build hetzner make"             # Remote make on Hetzner
-
-# NVM (Node Version Manager) - Lazy-loaded for performance
-# NVM_DIR should be set in .zshenv or .zshenv_<platform>
-if [[ -d "$NVM_DIR" ]]; then
-    # Add node to PATH without calling nvm (preserves lazy-loading)
-    if [[ -d "$NVM_DIR/versions/node" ]]; then
-        NODE_DEFAULT=$(ls -1 "$NVM_DIR/versions/node" 2>/dev/null | sort -V | tail -1)
-        [[ -n "$NODE_DEFAULT" ]] && export PATH="$NVM_DIR/versions/node/$NODE_DEFAULT/bin:$PATH"
-    fi
-
-    # Lazy-load functions
-    nvm() {
-        unset -f nvm node npm npx
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-        nvm "$@"
-    }
-
-    node() {
-        unset -f nvm node npm npx
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        node "$@"
-    }
-
-    npm() {
-        unset -f nvm node npm npx
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        npm "$@"
-    }
-
-    npx() {
-        unset -f nvm node npm npx
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        npx "$@"
-    }
-fi

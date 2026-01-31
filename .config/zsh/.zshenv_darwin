@@ -14,9 +14,6 @@ export PATH="/usr/local/bin/aws_completer:/opt/homebrew/opt/llvm/bin:/opt/homebr
 export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
 export PATH="$PATH:/Users/dumatte/Library/Application Support/JetBrains/Toolbox/scripts"
 
-# NVM directory (lazy-loading in .zsh_tools for interactive shells)
-export NVM_DIR="$HOME/.nvm"
-
 # macOS-specific environment variables
 export DEV_CNAME="dumatte-dev.aka.corp.amazon.com"
 export WEBPACK_DEV_SERVER_PORT=4000
