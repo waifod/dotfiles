@@ -1,0 +1,3 @@
+[tools]
+node = "lts"
+# Python managed by uv, not mise
