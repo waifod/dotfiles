@@ -1,0 +1,48 @@
+#!/bin/sh
+set -e
+
+# Detect OS and update system packages
+case "$(uname -s)" in
+    Linux)
+        if command -v dnf >/dev/null 2>&1; then
+            echo "=== DNF ==="
+            sudo dnf upgrade --refresh
+        elif command -v paru >/dev/null 2>&1; then
+            echo "=== Paru ==="
+            paru -Syu
+        elif command -v pacman >/dev/null 2>&1; then
+            echo "=== Pacman ==="
+            sudo pacman -Syu
+        fi
+        ;;
+    Darwin)
+        echo "=== Homebrew ==="
+        brew update && brew upgrade
+        ;;
+esac
+
+# Cross-platform tools
+echo "=== Cargo ==="
+cargo install-update -a
+
+echo "=== Rustup ==="
+rustup update
+
+echo "=== uv ==="
+uv tool upgrade --all
+
+echo "=== Mise ==="
+if command -v dnf >/dev/null 2>&1; then
+    mise self-update
+fi
+mise upgrade
+
+echo "=== Sheldon ==="
+sheldon lock --update
+
+echo "=== Neovim (Lazy) ==="
+nvim --headless "+Lazy! sync" +qa
+
+echo "=== Tmux (TPM) ==="
+"$HOME/.tmux/plugins/tpm/bin/update_plugins" all
+
