@@ -1,30 +1,13 @@
 # Unison profile for Amazon Cloud Desktop
-# Manual: http://www.cis.upenn.edu/~bcpierce/unison/download/releases/stable/unison-manual.html
 
 # Roots of the synchronization
 root = /Volumes/workplace
 root = ssh://clouddesk//workplace/dumatte
 
-# Ignore rules for macOS
-ignore = Name {.DS_Store,.Spotlight-V100,.Trashes,.fseventsd,.TemporaryItems,.DocumentRevisions-V100}
-
-# Ignore IPC files
-ignore = Name *.ipc
-
-# Ignore rules for Eclipse
-ignore = Path */{.metadata,.settings,.project,.classpath}
-
-# Ignore rules for JetBrains/IntelliJ
-ignore = Name {.iml,.iws}
-ignore = Path */.idea
-
-# Ignore rules for vim
-ignore = Name {[._]*.s[a-v][a-z],[._]*.sw[a-p],[._]s[a-v][a-z],[._]sw[a-p],Session.vim,Sessionx.vim}
-
-# Ignore rules for brazil
+# Amazon-specific ignores
 ignore = BelowPath */{env,logs,out}
 
-# target of `WORKSPACE/src/PACKAGE/build` symlink
+# Brazil build artifacts (keep test output)
 ignore    = Path */build/*/*/*/*/build/{,.}?*
 ignorenot = Path */build/*/*/*/*/build/brazil-integration-tests
 ignore    = Path */build/*/*/*/*/build/brazil-integration-tests/{,.}?*
@@ -39,49 +22,11 @@ ignorenot = Path */build/*/*/*/*/build/generated-src
 ignore    = Path */build/*/*/*/*/build/generated-src/{,.}?*
 ignorenot = Path */build/*/*/*/*/build/generated-src/{*.html,*.css,com}
 
-# Log files
-ignore = Name log{,s}/*.log{,.*}
-
-# Ignore ~/.unison/ config dir
-ignore = Path .unison
-ignore = Path .config/unison
-
-# Force Unison to use the correct temp directory
-fastcheck = true
-
-# Case-sensitivity
-ignorecase = false
-
-# Poll files for changes every 5 seconds
-repeat = 5
-
 # Log output
 log = true
-logfile = /Users/dumatte/.config/unison/amazon.log
+logfile = /Users/dumatte/.local/state/unison/amazon.log
 
-# Backup settings
-backup = Name *
-backupnot = Name *.ipc
-maxbackups = 5
-
-# Retry once on failure
-retry = 1
-
-# Auto-sync non-conflicting changes
-auto = true
-batch = true
-
-# Confirm big deletes
-confirmbigdeletes = true
-
-# Synchronize modification times
-times = true
-
-# Prefer newer version on conflict
-prefer = newer
-
-# Suppress messages
-terse = true
-contactquietly = true
+# Include shared settings
+include common.prf
 
 # vim: ft=dosini
