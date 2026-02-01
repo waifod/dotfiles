@@ -9,6 +9,7 @@ echo -e "\n=== Common Setup ===\n"
 
 # --- Create directories ---
 mkdir -p "$HOME/.local/state/zsh"
+mkdir -p "$HOME/sync"
 
 # --- Dotfiles ---
 if [ ! -d "$DOTFILES_DIR" ]; then
@@ -29,16 +30,14 @@ if cfg checkout 2>/dev/null; then
   echo -e "\nChecked out config."
 else
   echo -e "\nBacking up pre-existing dotfiles."
-  cfg checkout 2>&1 | awk '/^\s+/ {print $1}' | xargs -I{} mv "$HOME/{}" "$HOME/.config-backup/{}"
+  cfg checkout 2>&1 | awk '/^\s+/ {print $1}' | while read -r file; do
+    mkdir -p "$HOME/.config-backup/$(dirname "$file")"
+    mv "$HOME/$file" "$HOME/.config-backup/$file"
+  done
   cfg checkout
 fi
 
-# Initialize rustup
 export PATH="$HOME/.cargo/bin:$PATH"
-if ! rustup show active-toolchain >/dev/null 2>&1; then
-  echo -e "\nSetting up default Rust toolchain..."
-  rustup default stable
-fi
 
 # --- Cargo tools ---
 if ! cargo install-update --version >/dev/null 2>&1; then
@@ -59,6 +58,12 @@ if command -v sheldon >/dev/null 2>&1; then
   sheldon lock
 fi
 
+# --- Mise runtimes ---
+if command -v mise >/dev/null 2>&1; then
+  echo -e "\nInstalling mise runtimes..."
+  mise install
+fi
+
 # --- Neovim plugins ---
 if command -v nvim >/dev/null 2>&1; then
   echo -e "\nInstalling Neovim plugins..."
@@ -72,3 +77,9 @@ if [ "$SHELL" != "$(which zsh)" ]; then
 fi
 
 echo -e "\n=== Bootstrap complete ==="
+echo -e "\nNext steps:\n"
+echo "  1. Log out and back in (or run 'zsh') to use the new shell"
+echo ""
+echo "  2. Configure syncthing at http://localhost:8384"
+echo "     For remote servers: ssh -L 8384:localhost:8384 <host>"
+echo "     Guide: https://docs.syncthing.net/intro/getting-started.html"

@@ -35,6 +35,32 @@ Run `sysup` to update everything:
 - uv tools, mise runtimes
 - Sheldon, neovim, and tmux plugins
 
+## Syncthing setup
+
+After bootstrap, configure syncthing to sync folders between devices. See the [getting started guide](https://docs.syncthing.net/intro/getting-started.html) for details.
+
+1. Open the web UI at http://localhost:8384
+   - For remote servers: `ssh -L 8384:localhost:8384 <host>`, then open http://localhost:8384
+2. Get your device ID: Actions → Show ID
+3. On each device, add remote devices: Add Remote Device → paste their ID
+4. Accept the device on the other side
+5. Share folders: Add Folder → set path to `~/sync` → select devices to share with
+
+Config is stored in `~/.config/syncthing/`.
+
+## Fedora VPS setup
+
+The Fedora bootstrap includes security hardening:
+- SSH: root login and password auth disabled
+- firewalld: SSH (22), syncthing (22000/tcp, 21027/udp)
+- fail2ban: brute force protection
+- dnf5-automatic: daily security updates
+
+For defense in depth, configure Hetzner Cloud Firewall with matching rules:
+- Inbound TCP 22 (SSH)
+- Inbound TCP 22000 (syncthing)
+- Inbound UDP 21027 (syncthing discovery)
+
 ## Dependencies
 
 | Category | Packages | Arch | Fedora | macOS |
@@ -43,9 +69,10 @@ Run `sysup` to update everything:
 | Core | alacritty | ✓ | | ✓ |
 | Core | zsh-completions | ✓ | | |
 | Dev | rustup, mise, uv, sheldon | ✓ | ✓ | ✓ |
+| Dev | clang | ✓ | ✓ | ✓ |
 | CLI | bat, eza, fd, ripgrep, dust, bottom, zoxide, git-delta, fzf | ✓ | ✓ | ✓ |
 | Git | git-lfs | ✓ | ✓ | ✓ |
-| Sync | unison | ✓ | ✓ | ✓ |
+| Sync | unison, syncthing | ✓ | ✓ | ✓ |
 | Media | wget | ✓ | ✓ | ✓ |
 | Media | mpv, yt-dlp | ✓ | | ✓ |
 | Apps | newsboat, Proton Pass, Firefox, Chrome | ✓ | | ✓ |
@@ -53,6 +80,7 @@ Run `sysup` to update everything:
 | Desktop | sway, gammastep, bemenu, swaylock, swayidle, grim, mako, ddcutil | ✓ | | |
 | Audio | pipewire, pipewire-pulse, pamixer | ✓ | | |
 | Fonts | JetBrains Mono Nerd, Noto | ✓ | | ✓ |
+| Security | firewalld, fail2ban | | ✓ | |
 
 ## Tools
 
@@ -60,6 +88,7 @@ Run `sysup` to update everything:
 
 | Tool | Purpose |
 |------|---------|
+| [clang](https://clang.llvm.org/) | C/C++ compiler and tooling |
 | [rustup](https://github.com/rust-lang/rustup) | Rust toolchain manager |
 | [mise](https://github.com/jdx/mise) | polyglot runtime manager (node, python, etc.) |
 | [uv](https://github.com/astral-sh/uv) | fast Python package/project manager |
@@ -85,6 +114,7 @@ Aliased in shell config:
 
 | Tool | Purpose |
 |------|---------|
+| [syncthing](https://github.com/syncthing/syncthing) | continuous file sync |
 | [mpv](https://github.com/mpv-player/mpv) | video player |
 | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | video downloader |
 | [newsboat](https://github.com/newsboat/newsboat) | RSS reader |

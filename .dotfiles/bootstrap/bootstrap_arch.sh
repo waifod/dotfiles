@@ -10,10 +10,10 @@ mkdir -p "$HOME/desktop" "$HOME/downloads" "$HOME/templates" "$HOME/public" \
 
 echo "Installing base packages via Pacman..."
 sudo pacman -S --needed --noconfirm \
-  git zsh zsh-completions tmux neovim alacritty base-devel \
+  git zsh zsh-completions tmux neovim alacritty base-devel clang \
   rustup mise uv sheldon \
   bat eza fd ripgrep dust bottom zoxide git-delta fzf \
-  git-lfs unison \
+  git-lfs unison syncthing \
   mpv yt-dlp wget \
   newsboat transmission-cli \
   sway gammastep bemenu swaylock swayidle grim mako ddcutil \
@@ -31,3 +31,13 @@ fi
 
 echo -e "\nInstalling AUR packages via Paru..."
 paru -S --needed --noconfirm tremc protonpass-bin nyaa google-chrome-bin
+
+# Initialize rustup
+export PATH="$HOME/.cargo/bin:$PATH"
+if ! rustup show active-toolchain >/dev/null 2>&1; then
+  echo -e "\nSetting up default Rust toolchain..."
+  rustup default stable
+fi
+
+# Syncthing (user service)
+systemctl --user enable --now syncthing
