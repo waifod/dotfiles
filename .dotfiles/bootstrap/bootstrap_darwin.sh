@@ -21,7 +21,7 @@ brew install \
   newsboat
 
 echo -e "\nInstalling casks..."
-brew install --cask --force alacritty proton-pass firefox google-chrome font-jetbrains-mono-nerd-font font-noto-sans font-noto-serif font-noto-sans-mono font-noto-color-emoji font-noto-sans-cjk font-noto-serif-cjk
+brew install --cask --force alacritty proton-pass font-jetbrains-mono-nerd-font font-noto-sans font-noto-serif font-noto-sans-mono font-noto-color-emoji font-noto-sans-cjk font-noto-serif-cjk
 
 # Initialize rustup
 export PATH="$HOME/.cargo/bin:$PATH"

@@ -75,7 +75,8 @@ For defense in depth, configure Hetzner Cloud Firewall with matching rules:
 | Sync | unison, syncthing | ✓ | ✓ | ✓ |
 | Media | wget | ✓ | ✓ | ✓ |
 | Media | mpv, yt-dlp | ✓ | | ✓ |
-| Apps | newsboat, Proton Pass, Firefox, Chrome | ✓ | | ✓ |
+| Apps | newsboat, Proton Pass | ✓ | | ✓ |
+| Apps | Firefox, Chrome | ✓ | | (manual) |
 | Apps | transmission-cli, tremc, nyaa | ✓ | | |
 | Desktop | sway, gammastep, bemenu, swaylock, swayidle, grim, mako, ddcutil | ✓ | | |
 | Audio | pipewire, pipewire-pulse, pamixer | ✓ | | |
