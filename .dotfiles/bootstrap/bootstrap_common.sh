@@ -10,6 +10,7 @@ echo -e "\n=== Common Setup ===\n"
 # --- Create directories ---
 mkdir -p "$HOME/.local/state/zsh"
 mkdir -p "$HOME/.local/state/unison"
+mkdir -p "$HOME/.ssh/sockets"
 mkdir -p "$HOME/sync"
 
 # --- Dotfiles ---
