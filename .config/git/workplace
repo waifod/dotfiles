@@ -1,2 +1,4 @@
 [user]
-  email = dumatte@amazon.com
+    name = Matteo Durante
+    email = dumatte@amazon.com
+    signingkey = ~/.ssh/workplace_id_ed25519.pub

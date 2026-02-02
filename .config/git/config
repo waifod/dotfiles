@@ -1,85 +1,90 @@
 [user]
-	name = Matteo Durante
-  email = waifod@pm.me
+    name = waifod
+    email = waifod@pm.me
+    signingkey = ~/.ssh/id_ed25519.pub
 
 [includeIf "gitdir/i:/Volumes/workplace/"]
-  path = ~/.config/git/workplace
+    path = ~/.config/git/workplace
 
 [branch]
-	sort = -committerdate
+    sort = -committerdate
 
 [tag]
-	sort = version:refname
+    sort = version:refname
+    gpgsign = true
 
 [color]
-	ui = auto
+    ui = auto
 
 [column]
-	ui = auto
+    ui = auto
 
 [help]
-	autocorrect = prompt
+    autocorrect = prompt
 
 [commit]
-	verbose = true
+    gpgsign = true
+    verbose = true
 
 [core]
-	editor = nvim
-	pager = delta
-	excludesfile = ~/.config/git/ignore
-	fsmonitor = true
-	untrackedCache = true
+    editor = nvim
+    pager = delta
+    excludesfile = ~/.config/git/ignore
+    fsmonitor = true
+    untrackedCache = true
 
 [interactive]
-	diffFilter = delta --color-only
+    diffFilter = delta --color-only
 
 [delta]
-	navigate = true
-	true-color = always
-	side-by-side = true
-	line-numbers = true
-	syntax-theme = gruvbox-dark
-	minus-style = syntax
-	plus-style = syntax
+    navigate = true
+    true-color = always
+    side-by-side = true
+    line-numbers = true
+    syntax-theme = gruvbox-dark
+    minus-style = syntax
+    plus-style = syntax
 
 [diff]
-	algorithm = histogram
-	colorMoved = plain
+    algorithm = histogram
+    colorMoved = plain
 
 [fetch]
-	prune = true
-	pruneTags = true
+    prune = true
+    pruneTags = true
 
 [merge]
-	conflictStyle = zdiff3
+    conflictStyle = zdiff3
 
 [rebase]
-	autoStash = true
-	autoSquash = true
+    autoStash = true
+    autoSquash = true
 
 [pull]
-	rebase = true
+    rebase = true
 
 [push]
-	default = simple
-	autoSetupRemote = true
+    default = simple
+    autoSetupRemote = true
 
 [log]
-	abbrevCommit = true
-	date = iso
+    abbrevCommit = true
+    date = iso
 
 [init]
-  defaultBranch = main
+    defaultBranch = main
 
 [credential]
-  helper = cache
+    helper = cache
 
-# TODO
-# * add a credential manager
-# * add device-specific configs
-# * add commit signing via ssh key
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+
+[gpg]
+    format = ssh
+
+[gpg "ssh"]
+    allowedSignersFile = ~/.config/git/allowed_signers
