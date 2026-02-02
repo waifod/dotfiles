@@ -13,12 +13,12 @@ fi
 
 echo "Installing packages via Homebrew..."
 brew install \
-  git zsh tmux neovim llvm \
-  uv mise sheldon rustup \
+  git zsh tmux neovim \
+  llvm google-benchmark \
+  rustup mise uv sheldon \
   bat eza fd ripgrep dust bottom zoxide git-delta fzf \
-  git-lfs unison syncthing \
-  mpv yt-dlp wget \
-  newsboat
+  git-lfs unison syncthing wget \
+  mpv yt-dlp newsboat
 
 echo -e "\nInstalling casks..."
 brew install --cask --force alacritty proton-pass font-jetbrains-mono-nerd-font font-noto-sans font-noto-serif font-noto-sans-mono font-noto-color-emoji font-noto-sans-cjk font-noto-serif-cjk

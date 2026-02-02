@@ -11,10 +11,10 @@ mkdir -p "$HOME/desktop" "$HOME/downloads" "$HOME/templates" "$HOME/public" \
 echo "Installing packages via DNF..."
 sudo dnf install -y \
   git zsh tmux neovim \
+  clang clang-tools-extra google-benchmark-devel perf openssl-devel \
   uv rustup \
   bat fd-find ripgrep du-dust zoxide git-delta fzf \
   git-lfs unison syncthing wget keychain \
-  clang clang-tools-extra openssl-devel \
   firewalld fail2ban
 
 # Initialize rustup (Fedora's package requires rustup-init)

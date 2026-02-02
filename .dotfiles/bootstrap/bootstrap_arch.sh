@@ -8,14 +8,14 @@ echo -e "\n=== Arch Setup ===\n"
 mkdir -p "$HOME/desktop" "$HOME/downloads" "$HOME/templates" "$HOME/public" \
          "$HOME/docs" "$HOME/music" "$HOME/pics" "$HOME/videos"
 
-echo "Installing base packages via Pacman..."
+echo "Installing packages via Pacman..."
 sudo pacman -S --needed --noconfirm \
-  git zsh zsh-completions tmux neovim alacritty base-devel clang \
+  git zsh zsh-completions tmux neovim alacritty \
+  base-devel clang benchmark perf \
   rustup mise uv sheldon \
   bat eza fd ripgrep dust bottom zoxide git-delta fzf \
-  git-lfs unison syncthing \
-  mpv yt-dlp wget \
-  newsboat transmission-cli \
+  git-lfs unison syncthing wget \
+  mpv yt-dlp newsboat transmission-cli \
   sway gammastep bemenu swaylock swayidle grim mako ddcutil \
   pipewire pipewire-pulse pamixer \
   firefox \

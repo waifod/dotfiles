@@ -70,6 +70,8 @@ For defense in depth, configure Hetzner Cloud Firewall with matching rules:
 | Core | zsh-completions | ✓ | | |
 | Dev | rustup, mise, uv, sheldon | ✓ | ✓ | ✓ |
 | Dev | clang | ✓ | ✓ | ✓ |
+| Dev | google-benchmark | ✓ | ✓ | ✓ |
+| Dev | perf | ✓ | ✓ | |
 | CLI | bat, eza, fd, ripgrep, dust, bottom, zoxide, git-delta, fzf | ✓ | ✓ | ✓ |
 | Git | git-lfs | ✓ | ✓ | ✓ |
 | Sync | unison, syncthing | ✓ | ✓ | ✓ |
@@ -90,6 +92,8 @@ For defense in depth, configure Hetzner Cloud Firewall with matching rules:
 | Tool | Purpose |
 |------|---------|
 | [clang](https://clang.llvm.org/) | C/C++ compiler and tooling |
+| [google-benchmark](https://github.com/google/benchmark) | microbenchmark library |
+| [perf](https://perf.wiki.kernel.org/) | Linux profiling (Arch/Fedora only) |
 | [rustup](https://github.com/rust-lang/rustup) | Rust toolchain manager |
 | [mise](https://github.com/jdx/mise) | polyglot runtime manager (node, python, etc.) |
 | [uv](https://github.com/astral-sh/uv) | fast Python package/project manager |
