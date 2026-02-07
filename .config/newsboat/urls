@@ -31,7 +31,6 @@ https://interrupt.memfault.com/blog/feed.xml "~Interrupt (Memfault)" embedded pr
 https://blog.rust-embedded.org/rss.xml "~Rust Embedded Blog" embedded rust
 https://ferrous-systems.com/blog/feed.xml "~Ferrous Systems" embedded rust
 https://mcuoneclipse.com/feed/ "~MCU on Eclipse" embedded
-https://blog.adafruit.com/feed/ "~Adafruit Blog" embedded hardware
 
 # --- Systems & Low-Level Programming ---
 https://blog.cloudflare.com/rss/ "~Cloudflare Blog" systems priority
@@ -44,6 +43,7 @@ https://os.phil-opp.com/rss.xml "~Writing an OS in Rust" systems rust
 https://research.swtch.com/feed.atom "~Russ Cox" systems
 https://fgiesen.wordpress.com/feed/ "~Fabian Giesen" systems performance
 https://blog.acolyer.org/feed/ "~The Morning Paper" systems research
+https://teiolass.gitlab.io/index.xml "~Alessio Marchetti" systems performance
 
 # --- Performance Engineering ---
 https://www.brendangregg.com/blog/rss.xml "~Brendan Gregg" performance priority
@@ -52,30 +52,23 @@ https://pdziepak.github.io/feed.xml "~Pawel Dziepak" performance
 https://randomascii.wordpress.com/feed/ "~Random ASCII (Bruce Dawson)" cpp performance
 https://travisdowns.github.io/feed.xml "~Travis Downs" performance
 https://johnysswlab.com/feed/ "~Johny's Software Lab" performance
+https://beta.alvarezrosa.com/index.xml "~Alvarez Rosa" performance
 
 # --- Linux & Kernel Development ---
 https://lwn.net/headlines/rss "~LWN.net" linux kernel priority
-https://lwn.net/headlines/newrss "~LWN.net (Kernel Only)" linux kernel
-https://www.kernel.org/feeds/kdist.xml "~Kernel.org" linux kernel
 https://archlinux.org/feeds/news/ "~Arch Linux News" linux archlinux priority
 
 # --- Rust ---
 https://blog.rust-lang.org/feed.xml "~Rust Blog (Official)" rust priority
 https://blog.rust-lang.org/inside-rust/feed.xml "~Rust Internals Blog" rust
 https://this-week-in-rust.org/atom.xml "~This Week in Rust" rust priority
-https://releases.rs/index.xml "~Rust Releases" rust
 https://without.boats/index.xml "~Without Boats" rust
 https://fasterthanli.me/index.xml "~fasterthanlime" rust priority
 https://blog.yoshuawuyts.com/rss.xml "~Yoshua Wuyts" rust
 https://smallcultfollowing.com/babysteps/atom.xml "~Baby Steps (Niko Matsakis)" rust
 https://blog.m-ou.se/index.xml "~Mara Bos" rust
+https://mht.wtf/post/index.xml "~Martin Hafskjold Thoresen (mht.wtf)" rust systems
 
-# --- C++ (Systems & Performance Focus) ---
-https://herbsutter.com/feed/ "~Herb Sutter" cpp priority
-https://randomascii.wordpress.com/feed/ "~Random ASCII (Bruce Dawson)" cpp performance
-https://www.cppstories.com/index.xml "~C++ Stories" cpp
-https://meetingcpp.com/feed.xml "~Meeting C++" cpp
-https://devblogs.microsoft.com/cppblog/feed/ "~Visual C++ Team Blog" cpp
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # TIER 2: Technical Depth
@@ -114,10 +107,8 @@ https://lobste.rs/rss "~Lobsters" priority
 # TIER 4: Functional Programming & Theory
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-https://planet.haskell.org/rss20.xml "~Planet Haskell" code fp
 https://neilmitchell.blogspot.com/feeds/posts/default?alt=rss "~Neil Mitchell" code fp archived
 https://lexi-lambda.github.io/feeds/all.rss.xml "~Lexi Lambda" code fp
-https://www.mmhaskell.com/blog?format=RSS "~Monday Morning Haskell" code fp
 https://markkarpov.com/feed.atom "~Mark Karpov" code fp archived
 http://comonad.com/reader/feed/ "~Comonad Reader" code fp math archived
 https://bartoszmilewski.com/feed/ "~Bartosz Milewski" math fp priority
@@ -219,27 +210,21 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UC-yuWVUplUJZvieEligKBkA "~j
 https://www.youtube.com/feeds/videos.xml?channel_id=UCAMu6Dso0ENoNm3sKpQsy0g "~Nir Lichtman" video tech
 
 # Tech & Programming - General
-https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg "~Two Minute Papers" video tech
 https://www.youtube.com/feeds/videos.xml?channel_id=UCEbYhDd6c6vngsF5PQpFVWg "~Tsoding" video tech
 https://www.youtube.com/feeds/videos.xml?channel_id=UCrqM0Ym_NbK1fqeQG2VIohg "~Tsoding Daily" video tech
 https://www.youtube.com/feeds/videos.xml?channel_id=UCWQaM7SpSECp9FELz-cHzuQ "~Dreams of Code" video tech
 https://www.youtube.com/feeds/videos.xml?channel_id=UCo71RUe6DX4w-Vd47rFLXPg "~typecraft" video tech
 https://www.youtube.com/feeds/videos.xml?channel_id=UCsi5-meDM5Q5NE93n_Ya7GA "~Nick" video tech
-https://www.youtube.com/feeds/videos.xml?channel_id=UCf4tsZfSZlBx2QusJg3HJew "~Marco Codes" video tech
 https://www.youtube.com/feeds/videos.xml?channel_id=UCKTehwyGCKF-b2wo0RKwrcg "~Bisqwit" video tech
-https://lukesmith.xyz/peertube "~Luke Smith (PeerTube)" video tech
 
 # Rust
 https://www.youtube.com/feeds/videos.xml?channel_id=UC_iD0xppBwwsrM9DegC5cQQ "~Jon Gjengset" video rust
 https://www.youtube.com/feeds/videos.xml?channel_id=UCs4fQRyl1TJvoeOdekW6lYA "~fasterthanlime" video rust
-https://www.youtube.com/feeds/videos.xml?channel_id=UC0jzvznwtnsdXYIp415oC9g "~Rust Foundation" video rust
 
 # Compilers & Tools
 https://www.youtube.com/feeds/videos.xml?channel_id=UCC3kVzi4cWpLl16KmzsEtiQ "~Matt Godbolt" video compilers
 
 # Computer Science Education
-https://www.youtube.com/feeds/videos.xml?channel_id=UCSVKswAwikRd8ZS3AmSnuKg "~IEEE Computer Society" video cs
-https://www.youtube.com/feeds/videos.xml?channel_id=UCWj1EuRTnYn4in__Wanxl9g "~CMSC 125: Operating Systems" video cs
 https://www.youtube.com/feeds/videos.xml?channel_id=UCzf_XjIoKSf4Ve2fH7xn-3A "~David Black-Schaffer" video cs
 https://www.youtube.com/feeds/videos.xml?channel_id=UCPXSca90oe5-vcH9eU730gQ "~DepthBuffer" video cs
 https://www.youtube.com/feeds/videos.xml?channel_id=UCPSsA8oxlSBjidJsSPdpjsQ "~Prof. Dr. Ben H. Juurlink" video cs
@@ -247,15 +232,12 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCFjVIEm27hEYi5u2ua-26cg "~H
 
 # Engineering & Science
 https://www.youtube.com/feeds/videos.xml?channel_id=UChn336v-fUYkJH09vA4ZuCA "~Technology Connections" video
-https://www.youtube.com/feeds/videos.xml?channel_id=UCMxsVULY_qsk_aNdAqzcNUA "~Practical Engineering" video
+https://www.youtube.com/feeds/videos.xml?channel_id=UCMOqf8ab-42UUQIdVoKwjlQ "~Practical Engineering" video
 
 # Math & Theory
 https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw "~3Blue1Brown" video math
 https://www.youtube.com/feeds/videos.xml?channel_id=UC6_J0wZdqcoRVs0Mck922SQ "~Sheafification of G" video math
 https://www.youtube.com/feeds/videos.xml?channel_id=UCiNLr9wX35KksK77mrQgxiw "~2swap" video math
-
-# Tech Companies & Organizations
-https://www.youtube.com/feeds/videos.xml?channel_id=UCfX55Sx5hEFjoC3cNs6mCUQ "~The Linux Foundation" video linux
 
 # Conferences & Events
 https://www.youtube.com/feeds/videos.xml?channel_id=UCMlGfpWw-RUdWX_JbLCukXg "~CppCon" video conference systems
