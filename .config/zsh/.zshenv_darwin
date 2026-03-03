@@ -18,3 +18,11 @@ export PATH="$PATH:/Users/dumatte/Library/Application Support/JetBrains/Toolbox/
 export DEV_CNAME="dumatte-dev.aka.corp.amazon.com"
 export WEBPACK_DEV_SERVER_PORT=4000
 export DEV_OVERRIDE=1
+
+# Kepler SDK (Vega Studio / Kepler Studio extension)
+# Glob picks up whichever version is installed under ~/.kepler/kntools/sdk/
+for _sdk_dir in $HOME/.kepler/kntools/sdk/*(N/On[1]); do
+    export PATH="$_sdk_dir:$PATH"
+    break
+done
+unset _sdk_dir

@@ -13,6 +13,7 @@ autoload bashcompinit && bashcompinit
 # OS-specific settings (sourced first so Kiro integration can be in .zsh_darwin)
 if [[ "$(uname)" == "Darwin" ]]; then
     source "$ZDOTDIR/.zsh_darwin"
+    source "$ZDOTDIR/.zsh_vega"
 else
     source "$ZDOTDIR/.zsh_linux"
 fi

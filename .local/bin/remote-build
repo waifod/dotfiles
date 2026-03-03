@@ -73,7 +73,7 @@ else
 fi
 
 # Get current directory
-CURRENT_DIR="$(pwd)"
+CURRENT_DIR="$(pwd -P)"
 
 # Check if we're inside the sync root
 if [[ "$CURRENT_DIR" != "$SYNC_ROOT"* ]]; then
@@ -105,4 +105,5 @@ echo "Remote path: $REMOTE_PATH"
 echo ""
 
 # Run the command on remote
-ssh -t "$REMOTE_HOST" "cd '$REMOTE_PATH' && $CMD"
+ssh -t "$REMOTE_HOST" "bash -l -c 'cd \"$REMOTE_PATH\" && $CMD'"
+
