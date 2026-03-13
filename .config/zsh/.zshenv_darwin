@@ -26,3 +26,7 @@ for _sdk_dir in $HOME/.kepler/kntools/sdk/*(N/On[1]); do
     break
 done
 unset _sdk_dir
+
+export KEPLER_SDK_PATH=$HOME/kepler/sdk/current
+export PATH=$KEPLER_SDK_PATH/bin:$PATH
+

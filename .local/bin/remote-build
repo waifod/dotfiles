@@ -14,11 +14,11 @@ Remotes:
   hetzner  - Run on Hetzner instance
 
 Commands:
-  If no command is provided, runs 'brazil-build release' (for Amazon)
+  If no command is provided, runs 'brazil-build' (for Amazon)
   or 'make' (for Hetzner) in the corresponding remote directory.
 
 Examples:
-  remote-build amazon                    # Run brazil-build release
+  remote-build amazon                    # Run brazil-build
   remote-build amazon brazil-build test  # Run brazil-build test
   remote-build amazon "bb && bb test"    # Run multiple commands
   remote-build hetzner make              # Run make on Hetzner
@@ -58,7 +58,7 @@ if [[ "$REMOTE" == "amazon" ]]; then
     SYNC_ROOT="/Volumes/workplace"
     REMOTE_ROOT="/workplace/dumatte"
     REMOTE_HOST="clouddesk"
-    DEFAULT_CMD="brazil-build release"
+    DEFAULT_CMD="brazil-build"
 else
     # Hetzner works from both macOS and Linux
     if [[ "$OS_TYPE" == "Darwin" ]]; then
