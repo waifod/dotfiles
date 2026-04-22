@@ -66,6 +66,12 @@ if command -v mise >/dev/null 2>&1; then
   mise install
 fi
 
+# --- Python ---
+if command -v uv >/dev/null 2>&1; then
+  echo -e "\nInstalling Python via uv..."
+  uv python install 3.12
+fi
+
 # --- Neovim plugins ---
 if command -v nvim >/dev/null 2>&1; then
   echo -e "\nInstalling Neovim plugins..."
