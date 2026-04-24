@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eu
+
+DOWNLOAD_DIR="$HOME/sync/dance/salsabachata"
+SCRIPT_DIR="$HOME/misc/salsabachatadownloader"
+
+: "${SALSABACHATA_EMAIL:?SALSABACHATA_EMAIL not set}"
+: "${SALSABACHATA_PASSWORD:?SALSABACHATA_PASSWORD not set}"
+
+max_id=$(
+  find "$DOWNLOAD_DIR" -name '*.mp4' |
+    sed -n 's/.*_\([0-9]\{1,\}\)v[0-9]\{1,\}\.mp4$/\1/p' |
+    sort -n |
+    tail -1
+)
+
+if [ -z "$max_id" ]; then
+  echo "No lesson files found in $DOWNLOAD_DIR" >&2
+  exit 1
+fi
+
+start=$((max_id - 200))
+end=$((max_id + 1000))
+
+cd $SCRIPT_DIR
+
+uv run salsabachatadownloader.py "${start}-${end}" \
+  -w 4 \
+  -p "$SALSABACHATA_PASSWORD" \
+  -e "$SALSABACHATA_EMAIL" \
+  -o "$DOWNLOAD_DIR"
