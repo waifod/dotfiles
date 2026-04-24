@@ -52,6 +52,9 @@ export PATH="$HOME/.local/bin:$PATH"
 # Rust/Cargo - cross-platform, needed by all shells
 export PATH="$HOME/.cargo/bin:$PATH"
 
+# Secrets
+source "$ZDOTDIR/.zshenv_secrets"
+
 # Platform-specific environment setup
 if [[ "$(uname)" == "Darwin" ]]; then
     # Source macOS environment configuration

@@ -40,9 +40,6 @@ source "$ZDOTDIR/.zsh_prompt"
 # Completion settings
 source "$ZDOTDIR/.zsh_completions"
 
-# Secrets
-source "$ZDOTDIR/.zsh_secrets"
-
 # Key bindings
 bindkey "^[[A" history-beginning-search-backward
 bindkey "^[[B" history-beginning-search-forward
