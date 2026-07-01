@@ -33,3 +33,6 @@ unset _sdk_dir
 export KEPLER_SDK_PATH=$HOME/kepler/sdk/current
 export PATH=$KEPLER_SDK_PATH/bin:$PATH
 
+
+# AIM CLI
+export PATH="$HOME/.aim/mcp-servers:$PATH"

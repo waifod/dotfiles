@@ -7,6 +7,10 @@ root = ssh://clouddesk//workplace/dumatte
 # Amazon-specific ignores
 ignore = BelowPath */{env,logs,out}
 
+# Rust/Cargo build artifacts (platform-specific, never sync)
+ignore = BelowPath */target
+ignore = Name .cargo-ok
+
 # Brazil build artifacts (keep test output)
 ignore    = Path */build/*/*/*/*/build/{,.}?*
 ignorenot = Path */build/*/*/*/*/build/brazil-integration-tests

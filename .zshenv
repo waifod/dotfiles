@@ -63,3 +63,4 @@ else
     # Source Linux environment configuration
     [ -f "$ZDOTDIR/.zshenv_linux" ] && source "$ZDOTDIR/.zshenv_linux"
 fi
+

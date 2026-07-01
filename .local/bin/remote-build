@@ -5,7 +5,7 @@ set -e
 
 usage() {
     cat <<EOF
-Usage: remote-build [amazon|hetzner] [command]
+Usage: remote-build [amazon|hetzner] [options] [command]
 
 Run build commands on remote machines from your local workspace.
 
@@ -13,20 +13,28 @@ Remotes:
   amazon   - Run on Amazon Cloud Desktop
   hetzner  - Run on Hetzner instance
 
+Options:
+  -c       - Clean build artifacts before building
+  -s       - Sync (run unison once) before building
+  -h       - Show this help
+
 Commands:
   If no command is provided, runs 'brazil-build' (for Amazon)
   or 'make' (for Hetzner) in the corresponding remote directory.
 
 Examples:
   remote-build amazon                    # Run brazil-build
+  remote-build amazon -c                 # Clean then brazil-build
+  remote-build amazon -s -c             # Sync, clean, then build
   remote-build amazon brazil-build test  # Run brazil-build test
   remote-build amazon "bb && bb test"    # Run multiple commands
   remote-build hetzner make              # Run make on Hetzner
 
 Notes:
   - Automatically determines the remote path based on current directory
-  - For Amazon: Uses /workplace/dumatte/...
-  - For Hetzner: Uses /home/wfd/learning/...
+  - For Amazon: maps /Volumes/workplace/... -> /workplace/dumatte/...
+  - For Hetzner: maps ~/learning/... -> /home/wfd/learning/...
+  - Rust packages (detected by Cargo.toml) auto-warn; use -c to clean
 EOF
     exit 0
 }
@@ -45,12 +53,24 @@ if [[ "$REMOTE" != "amazon" ]] && [[ "$REMOTE" != "hetzner" ]]; then
     exit 1
 fi
 
+# Parse options
+CLEAN=false
+SYNC=false
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -c) CLEAN=true; shift ;;
+        -s) SYNC=true; shift ;;
+        -*) echo "Unknown option: $1"; usage ;;
+        *)  break ;;
+    esac
+done
+
 # Detect OS
 OS_TYPE="$(uname -s)"
 
 # Determine current directory relative to sync root
 if [[ "$REMOTE" == "amazon" ]]; then
-    # Amazon is only available from macOS
     if [[ "$OS_TYPE" != "Darwin" ]]; then
         echo "Error: Amazon remote is only available from macOS."
         exit 1
@@ -60,11 +80,9 @@ if [[ "$REMOTE" == "amazon" ]]; then
     REMOTE_HOST="clouddesk"
     DEFAULT_CMD="brazil-build"
 else
-    # Hetzner works from both macOS and Linux
     if [[ "$OS_TYPE" == "Darwin" ]]; then
         SYNC_ROOT="$HOME/learning"
     else
-        # On Linux (cloud desktop), use workplace
         SYNC_ROOT="$HOME/workplace"
     fi
     REMOTE_ROOT="/home/wfd/learning"
@@ -75,7 +93,7 @@ fi
 # Get current directory
 CURRENT_DIR="$(pwd -P)"
 
-# Check if we're inside the sync root
+# Check if we are inside the sync root
 if [[ "$CURRENT_DIR" != "$SYNC_ROOT"* ]]; then
     echo "Error: Current directory is not inside $SYNC_ROOT"
     echo "You must be in a synced directory to use remote-build."
@@ -84,7 +102,7 @@ fi
 
 # Calculate relative path
 RELATIVE_PATH="${CURRENT_DIR#$SYNC_ROOT}"
-RELATIVE_PATH="${RELATIVE_PATH#/}"  # Remove leading slash if present
+RELATIVE_PATH="${RELATIVE_PATH#/}"
 
 # Build remote path
 if [[ -z "$RELATIVE_PATH" ]]; then
@@ -100,10 +118,43 @@ else
     CMD="$*"
 fi
 
-echo "Running on $REMOTE: $CMD"
-echo "Remote path: $REMOTE_PATH"
+# Detect Rust package
+IS_RUST=false
+if [[ -f "Cargo.toml" ]] || [[ -f "rust/Cargo.toml" ]]; then
+    IS_RUST=true
+fi
+
+# Sync first if requested
+if [[ "$SYNC" == true ]]; then
+    echo "\033[36m▶ Syncing with $REMOTE...\033[0m"
+    UNISON="$HOME/.config/unison" unison "$REMOTE" -repeat 0 -terse 2>/dev/null
+    echo ""
+fi
+
+# Verify remote path exists
+if ! ssh "$REMOTE_HOST" "test -d \"$REMOTE_PATH\"" 2>/dev/null; then
+    echo "Error: Remote path does not exist: $REMOTE_PATH"
+    echo "Did you forget to create the workspace on the cloud desktop?"
+    exit 1
+fi
+
+# Clean if requested or auto-clean for Rust
+CLEAN_CMD=""
+if [[ "$CLEAN" == true ]]; then
+    if [[ "$IS_RUST" == true ]]; then
+        CLEAN_CMD="rm -rf target/ rust/target/ 2>/dev/null; "
+        echo "\033[33m▶ Cleaning Rust target/ on remote\033[0m"
+    else
+        CLEAN_CMD="brazil-build clean 2>/dev/null; "
+        echo "\033[33m▶ Running brazil-build clean on remote\033[0m"
+    fi
+elif [[ "$IS_RUST" == true ]]; then
+    echo "\033[33m⚠ Rust package detected. Use -c to clean stale Mac artifacts if build fails.\033[0m"
+fi
+
+echo "\033[36m▶ Running on $REMOTE:\033[0m $CMD"
+echo "\033[90m  Path: $REMOTE_PATH\033[0m"
 echo ""
 
 # Run the command on remote
-ssh -t "$REMOTE_HOST" "bash -l -c 'cd \"$REMOTE_PATH\" && $CMD'"
-
+ssh -t "$REMOTE_HOST" "bash -l -c 'cd \"$REMOTE_PATH\" && ${CLEAN_CMD}$CMD'"

@@ -36,3 +36,14 @@ setup-credentials() {
 
 # Kiro CLI integration (macOS only) - Keep at the bottom
 [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
+
+# Remote Aki — run aki on cloud desktop from local Mac
+caki() {
+    if [ $# -eq 0 ]; then
+        # Interactive REPL on cloud desktop
+        ssh -t clouddesk 'cd ~/workplace && aki --cli'
+    else
+        # One-shot command
+        ssh clouddesk "cd ~/workplace && aki --cli \"$*\""
+    fi
+}
