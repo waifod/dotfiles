@@ -15,4 +15,5 @@ dynamic_padding = true
 
 [general]
 import = ["~/.config/alacritty/themes/gruvbox_dark.toml"]
+#import = ["~/.config/alacritty/themes/synthwave_84.toml"]
 #decorations = "None"
