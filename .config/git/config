@@ -6,6 +6,9 @@
 [includeIf "gitdir/i:/Volumes/workplace/"]
     path = ~/.config/git/workplace
 
+[includeIf "gitdir/i:omscs/"]
+    path = ~/.config/git/omscs
+
 [branch]
     sort = -committerdate
 

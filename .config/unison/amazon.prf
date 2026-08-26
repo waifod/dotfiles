@@ -7,6 +7,18 @@ root = ssh://clouddesk//workplace/dumatte
 # Amazon-specific ignores
 ignore = BelowPath */{env,logs,out}
 
+# Brazil trash: contains moved-aside env trees with platform-specific
+# binaries (Mach-O locally, ELF remotely). Never sync, at any depth.
+ignore = Name .brazil_trash
+
+# Brazil package cache: platform-specific, never sync
+ignore = Name brazil-pkg-cache
+
+# Package-level build dirs: platform-specific toolchains and artifacts
+# (cargo-home, cargo-brazil-toolchain, registries). Never sync.
+ignore = Path */src/*/build
+ignore = BelowPath */src/*/build
+
 # Rust/Cargo build artifacts (platform-specific, never sync)
 ignore = BelowPath */target
 ignore = Name .cargo-ok
