@@ -10,7 +10,8 @@ SCRIPT_DIR="$HOME/misc/salsabachatadownloader"
 cd $SCRIPT_DIR
 
 uv run salsabachatadownloader.py \
-  -w 4 \
+  -s 8 \
+  -d 8 \
   -p "$SALSABACHATA_PASSWORD" \
   -e "$SALSABACHATA_EMAIL" \
   -o "$DOWNLOAD_DIR"
