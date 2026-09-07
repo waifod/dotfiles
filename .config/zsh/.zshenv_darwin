@@ -36,3 +36,4 @@ export PATH=$KEPLER_SDK_PATH/bin:$PATH
 
 # AIM CLI
 export PATH="$HOME/.aim/mcp-servers:$PATH"
+
