@@ -17,6 +17,8 @@ Options:
   -o       - Run once (don't repeat)
   -i       - Interactive mode (ask for confirmations)
   -f DIR   - Force direction: path to prefer (remote or local wins)
+  -c       - Check the remote for host-specific files that leaked across
+             (brazil.prefs, Mach-O binaries in env/) and exit
   -h       - Show this help
 
 Examples:
@@ -43,6 +45,42 @@ if [[ "$PROFILE" != "amazon" ]] && [[ "$PROFILE" != "hetzner" ]]; then
     exit 1
 fi
 
+# Brazil workspace state that must never cross hosts. config/brazil.prefs on the
+# Mac selects the macOS platform overlay; on Cloud Desktop that makes Brazil
+# resolve Mac binaries. Refuse to sync the amazon profile unless it is ignored.
+REQUIRED_AMAZON_IGNORES=(
+    'ignore = Path */config/brazil.prefs'
+    'ignore = Name rust-toolchain.toml'
+)
+if [[ "$PROFILE" == "amazon" ]]; then
+    for rule in "${REQUIRED_AMAZON_IGNORES[@]}"; do
+        if ! grep -qF -- "$rule" "$HOME/.config/unison/amazon.prf"; then
+            echo "Error: ~/.config/unison/amazon.prf is missing '$rule'."
+            echo "Syncing without it corrupts the Cloud Desktop workspace. Add it and retry."
+            exit 1
+        fi
+    done
+fi
+
+# -c: report host-specific files that have already leaked to the remote.
+check_remote() {
+    echo "Checking clouddesk for leaked host-specific files..."
+    ssh clouddesk 'cd /workplace/dumatte || exit 1
+        found=0
+        while IFS= read -r f; do
+            echo "  leaked: $f"; found=1
+        done < <(find . -maxdepth 4 \( -path "*/config/brazil.prefs" -o -name rust-toolchain.toml \) -not -path "*/build/*" 2>/dev/null)
+        if [ -d /mybc/packages ]; then
+            n=$(find /mybc/packages -maxdepth 6 -type f -perm -u+x -newermt "-7 days" 2>/dev/null \
+                | head -2000 | xargs -r file 2>/dev/null | grep -c "Mach-O")
+            [ "$n" -gt 0 ] && { echo "  $n Mach-O binaries in /mybc (Mac overlay packages cached on Linux)"; found=1; }
+        fi
+        u=$(find . -name ".unison.*.unison.tmp" -not -path "*/build/*" 2>/dev/null | wc -l)
+        [ "$u" -gt 0 ] && { echo "  $u unison temp files"; found=1; }
+        [ "$found" -eq 0 ] && echo "  clean"
+        exit $found'
+}
+
 # Build unison command
 UNISON_ARGS=()
 FORCE_DIR=""
@@ -57,6 +95,11 @@ while [[ $# -gt 0 ]]; do
         -i)
             UNISON_ARGS+=(-batch false -auto false)
             shift
+            ;;
+        -c)
+            [[ "$PROFILE" == "amazon" ]] || { echo "-c is only for the amazon profile"; exit 1; }
+            check_remote
+            exit $?
             ;;
         -f)
             if [[ -z "$2" ]] || [[ "$2" == -* ]]; then
