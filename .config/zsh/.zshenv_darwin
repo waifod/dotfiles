@@ -1,39 +1,50 @@
 # .zshenv_darwin - macOS environment variables for ALL shells
-# Sourced from .zshenv (non-interactive + interactive)
+# Sourced from .zshenv (non-interactive + interactive), and re-sourced from
+# .zprofile because /etc/zprofile runs path_helper, which moves /usr/local/bin
+# and /usr/bin ahead of everything set here.
 
-# Homebrew - manually set paths for performance (faster than eval)
+# Homebrew (Apple Silicon). Equivalent to `brew shellenv`, hardcoded for speed.
 export HOMEBREW_PREFIX="/opt/homebrew"
-export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
-export HOMEBREW_REPOSITORY="/opt/homebrew"
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin${PATH+:$PATH}"
-export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:"
-export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
+export HOMEBREW_CELLAR="$HOMEBREW_PREFIX/Cellar"
+export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX"
+fpath=("$HOMEBREW_PREFIX/share/zsh/site-functions" $fpath)
+export MANPATH="$HOMEBREW_PREFIX/share/man${MANPATH+:$MANPATH}:"
+export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
 
-# FLAX developer tools
-export PATH="$HOME/.flax/bin:$PATH"
+# macOS SDK. xcrun defaults to the newest SDK present (a stray 27.0 one that
+# the 26.x linker cannot read), so pin to the symlink the CLT installer
+# maintains for the running OS.
+export SDKROOT="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
 
-# macOS-specific PATH
-export PATH="/usr/local/bin/aws_completer:/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/ruby/bin:/opt/homebrew/opt/scala@2.12/bin:$HOME/.rbenv/bin:$HOME/.toolbox/bin:$HOME/scripts:$PATH"
-export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
-export PATH="$PATH:/Users/dumatte/Library/Application Support/JetBrains/Toolbox/scripts"
+# Kepler SDK
+export KEPLER_SDK_PATH="$HOME/kepler/sdk/current"
+
+# Newest Kepler kntools SDK, if any (N: no error if absent, On: name descending)
+_kntools=($HOME/.kepler/kntools/sdk/*(N/On[1]))
+
+# Highest precedence first. Homebrew opt/ entries shadow their unversioned
+# counterparts in /opt/homebrew/bin and the system.
+path=(
+    "$HOME/.aim/mcp-servers"
+    "$KEPLER_SDK_PATH/bin"
+    $_kntools
+    "$HOME/.flax/bin"
+    "$HOME/.toolbox/bin"
+    "$HOME/scripts"
+    "$HOME/.rbenv/bin"
+    "$HOMEBREW_PREFIX/opt/llvm/bin"
+    "$HOMEBREW_PREFIX/opt/ruby/bin"
+    "$HOMEBREW_PREFIX/opt/scala@2.12/bin"
+    "$HOMEBREW_PREFIX/bin"
+    "$HOMEBREW_PREFIX/sbin"
+    $path
+    "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+    "$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
+)
+unset _kntools
+export PATH
 
 # macOS-specific environment variables
 export DEV_CNAME="dumatte-dev.aka.corp.amazon.com"
 export WEBPACK_DEV_SERVER_PORT=4000
 export DEV_OVERRIDE=1
-
-# Kepler SDK (Vega Studio / Kepler Studio extension)
-# Glob picks up whichever version is installed under ~/.kepler/kntools/sdk/
-for _sdk_dir in $HOME/.kepler/kntools/sdk/*(N/On[1]); do
-    export PATH="$_sdk_dir:$PATH"
-    break
-done
-unset _sdk_dir
-
-export KEPLER_SDK_PATH=$HOME/kepler/sdk/current
-export PATH=$KEPLER_SDK_PATH/bin:$PATH
-
-
-# AIM CLI
-export PATH="$HOME/.aim/mcp-servers:$PATH"
-

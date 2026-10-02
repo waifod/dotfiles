@@ -46,11 +46,10 @@ export BROWSER="$HOME/.local/bin/linkhandler"
 export EDITOR="nvim"
 export VISUAL="$EDITOR"
 
-# Core PATH - needed by all shells including non-interactive
-export PATH="$HOME/.local/bin:$PATH"
-
-# Rust/Cargo - cross-platform, needed by all shells
-export PATH="$HOME/.cargo/bin:$PATH"
+# Keep path arrays free of duplicates. Prepending an entry that already
+# exists moves it to the front, which is what makes re-sourcing this file
+# from .zprofile (after macOS path_helper reorders PATH) safe.
+typeset -U path fpath manpath
 
 # Secrets
 source "$ZDOTDIR/.zshenv_secrets"
@@ -63,4 +62,8 @@ else
     # Source Linux environment configuration
     [ -f "$ZDOTDIR/.zshenv_linux" ] && source "$ZDOTDIR/.zshenv_linux"
 fi
+
+# User binaries go last so they take precedence over everything above
+path=("$HOME/.local/bin" "$HOME/.cargo/bin" $path)
+export PATH
 

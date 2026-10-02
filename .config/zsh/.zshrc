@@ -14,7 +14,7 @@ fi
 # Bash completion support (needed for AWS CLI and others)
 autoload bashcompinit && bashcompinit
 
-# OS-specific settings (sourced first so Kiro integration can be in .zsh_darwin)
+# OS-specific settings
 if [[ "$(uname)" == "Darwin" ]]; then
     source "$ZDOTDIR/.zsh_darwin"
     source "$ZDOTDIR/.zsh_vega"

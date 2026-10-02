@@ -1,8 +1,6 @@
 # .zsh_darwin - macOS-specific interactive shell configuration
 # Sourced from .zshrc for interactive shells only
-
-# Kiro CLI integration (macOS only) - Keep at the top
-[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+# Kiro CLI integration lives in .zshrc (its installer manages it there).
 
 # Brazil aliases (macOS-specific due to Brazil tooling)
 alias bb="brazil-build"
@@ -33,9 +31,6 @@ setup-credentials() {
     remote-sync amazon &
     disown
 }
-
-# Kiro CLI integration (macOS only) - Keep at the bottom
-[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
 
 # Remote Aki — run aki on cloud desktop from local Mac
 caki() {
