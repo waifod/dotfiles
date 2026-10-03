@@ -1,4 +1,0 @@
-# Shell options
-setopt glob_dots
-setopt auto_cd
-ENABLE_CORRECTION="true"

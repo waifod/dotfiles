@@ -2,13 +2,18 @@
 # Kiro CLI pre block. Keep at the top of this file.
 [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zprofile.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zprofile.pre.zsh"
 
-# .zprofile - Login shells only
-# One-time setup: SSH agents, starting services, login messages
+# .zprofile - login shells only (after .zshenv, before .zshrc).
+# One-time setup: PATH fix-ups, SSH agents.
 
-if [[ "$(uname)" == "Darwin" ]]; then
-    [ -f "$ZDOTDIR/.zprofile_darwin" ] && source "$ZDOTDIR/.zprofile_darwin"
+if [[ $OSTYPE == darwin* ]]; then
+    # /etc/zprofile runs path_helper between .zshenv and here, moving
+    # /usr/bin and friends ahead of Homebrew. Restore our order; typeset -U
+    # drops the duplicates and keeps anything path_helper added.
+    path=($_zshenv_path $path)
+    export PATH
 else
-    [ -f "$ZDOTDIR/.zprofile_linux" ] && source "$ZDOTDIR/.zprofile_linux"
+    # SSH agent credentials
+    (( $+commands[keychain] )) && eval "$(keychain --eval --quiet --noask id_ed25519)"
 fi
 
 

@@ -2,61 +2,24 @@
 # Kiro CLI pre block. Keep at the top of this file.
 [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
 
+# .zshrc - interactive shells only.
+#
+#   rc.d/*.zsh     shared config, loaded in filename order
+#   os/<os>*.zsh   platform config (darwin = Amazon laptop)
+#   local/*.zsh    untracked machine-local config (secrets.zsh is loaded
+#                  from .zshenv instead, so it is skipped here)
+#   functions/     autoloaded on first call
 
-# Completion cache - regenerate daily, skip all security checks for speed
-autoload -Uz compinit
-if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
-    compinit -u
-else
-    compinit -C -u
-fi
+# Sourced at top level, not in a function: `typeset` inside sourced plugin
+# code would otherwise create function-local variables.
+if [[ $OSTYPE == darwin* ]]; then _os=darwin; else _os=linux; fi
+for _f in $ZDOTDIR/rc.d/*.zsh(N) $ZDOTDIR/os/$_os*.zsh(N) $ZDOTDIR/local/*.zsh(N); do
+    [[ $_f == */local/secrets.zsh ]] || source "$_f"
+done
+unset _f _os
 
-# Bash completion support (needed for AWS CLI and others)
-autoload bashcompinit && bashcompinit
-
-# OS-specific settings
-if [[ "$(uname)" == "Darwin" ]]; then
-    source "$ZDOTDIR/.zsh_darwin"
-    source "$ZDOTDIR/.zsh_vega"
-else
-    source "$ZDOTDIR/.zsh_linux"
-fi
-
-# History settings
-source "$ZDOTDIR/.zsh_history"
-
-# Shell options
-source "$ZDOTDIR/.zsh_options"
-
-# Load plugin manager
-source "$ZDOTDIR/.zsh_plugins"
-
-# Aliases and functions
-source "$ZDOTDIR/.zsh_aliases"
-source "$ZDOTDIR/.zsh_functions"
-
-# Cross-platform tools
-source "$ZDOTDIR/.zsh_tools"
-
-# Prompt configuration
-source "$ZDOTDIR/.zsh_prompt"
-
-# Completion settings
-source "$ZDOTDIR/.zsh_completions"
-
-# Key bindings
-bindkey "^[[A" history-beginning-search-backward
-bindkey "^[[B" history-beginning-search-forward
-bindkey "\C-p" history-beginning-search-backward
-bindkey "\C-n" history-beginning-search-forward
-
-# Bat and Less configuration
-# Use bat as the default pager, which includes syntax highlighting.
-# Use --paging=always to ensure bat always uses a pager.
-export PAGER="bat --paging=always"
-
-# Setup zoxide
-eval "$(zoxide init zsh --cmd cd)"
+# zoxide wants to initialise last, after anything that touches `cd`.
+_cached_source zoxide "" zoxide init zsh --cmd cd
 
 
 # Kiro CLI post block. Keep at the bottom of this file.

@@ -1,8 +1,0 @@
-# .zprofile_darwin - macOS login shell configuration
-# Sourced from .zprofile for login shells only
-
-# /etc/zprofile runs path_helper before this file, which puts /usr/local/bin
-# and /usr/bin back in front of Homebrew. Re-apply our PATH ordering.
-source "$HOME/.zshenv"
-
-# Add any one-time macOS initialization here
