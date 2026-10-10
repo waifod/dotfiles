@@ -1,18 +1,55 @@
 #!/bin/sh
 set -e
 
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [-f|--force] [-h|--help]
+
+Update system packages and developer tools.
+
+  -f, --force  Force refreshes and upgrades where the tool supports it:
+               brew update --force, brew upgrade --greedy, pacman/paru -Syyu,
+               cargo install-update --force, rustup update --force,
+               uv tool upgrade --reinstall, mise self-update --force,
+               sheldon lock --reinstall
+EOF
+}
+
+FORCE=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+  -f | --force) FORCE=1 ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  *)
+    echo "Unknown option: $1" >&2
+    usage >&2
+    exit 2
+    ;;
+  esac
+  shift
+done
+
+# Return the first argument when forcing, the second otherwise.
+pick() {
+  if [ "$FORCE" -eq 1 ]; then printf '%s' "$1"; else printf '%s' "$2"; fi
+}
+
 # Detect OS and update system packages
 case "$(uname -s)" in
 Linux)
   if command -v dnf >/dev/null 2>&1; then
+    # --refresh already forces a metadata refresh; dnf has no stronger option.
     echo "=== DNF ==="
     sudo dnf upgrade --refresh
   elif command -v paru >/dev/null 2>&1; then
     echo "=== Paru ==="
-    paru -Syu
+    paru "$(pick -Syyu -Syu)"
   elif command -v pacman >/dev/null 2>&1; then
     echo "=== Pacman ==="
-    sudo pacman -Syu
+    sudo pacman "$(pick -Syyu -Syu)"
   fi
   ;;
 Darwin)
@@ -21,28 +58,52 @@ Darwin)
     mwinit -s
   fi
   echo "=== Homebrew ==="
-  brew update && brew upgrade
+  if [ "$FORCE" -eq 1 ]; then
+    brew update --force && brew upgrade --greedy
+  else
+    brew update && brew upgrade
+  fi
   ;;
 esac
 
 # Cross-platform tools
 echo "=== Cargo ==="
-cargo install-update -a
+if [ "$FORCE" -eq 1 ]; then
+  cargo install-update -a --force
+else
+  cargo install-update -a
+fi
 
 echo "=== Rustup ==="
-rustup update
+if [ "$FORCE" -eq 1 ]; then
+  rustup update --force
+else
+  rustup update
+fi
 
 echo "=== uv ==="
-uv tool upgrade --all
+if [ "$FORCE" -eq 1 ]; then
+  uv tool upgrade --all --reinstall
+else
+  uv tool upgrade --all
+fi
 
 echo "=== Mise ==="
 if command -v dnf >/dev/null 2>&1; then
-  mise self-update
+  if [ "$FORCE" -eq 1 ]; then
+    mise self-update --force
+  else
+    mise self-update
+  fi
 fi
 mise upgrade
 
 echo "=== Sheldon ==="
-sheldon lock --update
+if [ "$FORCE" -eq 1 ]; then
+  sheldon lock --reinstall
+else
+  sheldon lock --update
+fi
 
 echo "=== Neovim (Lazy) ==="
 nvim --headless "+Lazy! sync" +qa

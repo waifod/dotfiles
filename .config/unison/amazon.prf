@@ -7,6 +7,9 @@ root = ssh://clouddesk//workplace/dumatte
 # Amazon-specific ignores
 ignore = BelowPath */{env,logs,out}
 
+# Mac-only Brazil workspaces (native macOS builds); never synced.
+ignore = Path mac-ws
+
 # Host-specific Brazil state. config/brazil.prefs carries the macOS platform
 # overlay setting; syncing it to Cloud Desktop makes Brazil resolve Mac binaries
 # there (2026-09-16: CPython310Runtime arrived as Mach-O in /mybc, breaking
@@ -17,6 +20,10 @@ ignore = Path */.brazil
 ignore = Path */.builder-mcp
 ignore = Path */packageInfo.bak
 ignore = Name rust-toolchain.toml
+# release-info holds the version set as resolved on this host, with the
+# platform overlay merged in. Syncing the Mac's copy made Cloud Desktop fetch
+# the macOS CPython312Runtime (2026-10-05: Mach-O python3.12 in /mybc).
+ignore = Path */release-info
 
 # Brazil trash: contains moved-aside env trees with platform-specific
 # binaries (Mach-O locally, ELF remotely). Never sync, at any depth.

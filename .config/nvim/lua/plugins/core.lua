@@ -97,10 +97,17 @@ return {
     },
   },
 
-  -- Configure auto-session to restore sessions
+  -- Configure auto-session to restore sessions. It replaces persistence.nvim
+  -- (disabled in disabled.lua); these keys take over LazyVim's <leader>q ones.
   {
     "rmagatti/auto-session",
     lazy = false,
+    keys = {
+      { "<leader>qs", "<cmd>AutoSession restore<cr>", desc = "Restore Session" },
+      { "<leader>qS", "<cmd>AutoSession search<cr>", desc = "Select Session" },
+      { "<leader>qD", "<cmd>AutoSession deletePicker<cr>", desc = "Delete Session" },
+      { "<leader>qd", "<cmd>AutoSession disable<cr>", desc = "Don't Save Current Session" },
+    },
     opts = {
       suppressed_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
     },

@@ -51,6 +51,7 @@ fi
 REQUIRED_AMAZON_IGNORES=(
     'ignore = Path */config/brazil.prefs'
     'ignore = Name rust-toolchain.toml'
+    'ignore = Path */release-info'
 )
 if [[ "$PROFILE" == "amazon" ]]; then
     for rule in "${REQUIRED_AMAZON_IGNORES[@]}"; do
