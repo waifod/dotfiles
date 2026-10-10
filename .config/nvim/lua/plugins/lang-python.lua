@@ -13,7 +13,6 @@ return {
         "debugpy", -- debug adapter
         -- "ty",   -- type checker & LSP (system-wide)
         -- "ruff", -- linter & formatter (system-wide)
-        -- "mypy", -- type checker for CI (system-wide)
       },
     },
   },

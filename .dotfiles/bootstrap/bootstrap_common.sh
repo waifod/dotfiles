@@ -70,6 +70,11 @@ fi
 if command -v uv >/dev/null 2>&1; then
   echo -e "\nInstalling Python via uv..."
   uv python install 3.12
+  # Python tooling the neovim config expects system-wide (Homebrew provides
+  # these on macOS; elsewhere they come from uv).
+  for tool in ruff ty; do
+    command -v "$tool" >/dev/null 2>&1 || uv tool install "$tool"
+  done
 fi
 
 # --- Neovim plugins ---

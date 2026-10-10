@@ -31,7 +31,6 @@ path=(
     "$HOME/.flax/bin"
     "$HOME/.toolbox/bin"
     "$HOME/scripts"
-    "$HOME/.rbenv/bin"
     "$HOMEBREW_PREFIX/opt/llvm/bin"
     "$HOMEBREW_PREFIX/opt/ruby/bin"
     "$HOMEBREW_PREFIX/opt/scala@2.12/bin"

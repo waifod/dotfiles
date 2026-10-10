@@ -11,9 +11,9 @@ mkdir -p "$HOME/desktop" "$HOME/downloads" "$HOME/templates" "$HOME/public" \
 echo "Installing packages via DNF..."
 sudo dnf install -y \
   git zsh tmux neovim \
-  clang clang-tools-extra google-benchmark-devel perf openssl-devel \
+  gcc-c++ clang clang-tools-extra cmake google-benchmark-devel perf openssl-devel \
   uv rustup \
-  bat fd-find ripgrep du-dust zoxide git-delta fzf \
+  bat fd-find ripgrep du-dust zoxide git-delta fzf jq gh tree \
   git-lfs unison syncthing wget keychain \
   firewalld fail2ban
 

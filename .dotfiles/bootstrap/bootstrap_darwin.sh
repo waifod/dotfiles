@@ -14,14 +14,15 @@ fi
 echo "Installing packages via Homebrew..."
 brew install \
   git zsh tmux neovim \
-  llvm google-benchmark \
+  llvm gcc cmake pkgconf google-benchmark \
   mise uv sheldon starship \
-  bat eza fd ripgrep dust bottom zoxide git-delta fzf \
+  bat bat-extras eza fd ripgrep dust bottom zoxide git-delta fzf jq gh tree \
+  ruff ty typst \
   git-lfs unison syncthing wget \
   mpv yt-dlp newsboat
 
 echo -e "\nInstalling casks..."
-brew install --cask --force proton-pass font-jetbrains-mono-nerd-font font-noto-sans font-noto-serif font-noto-sans-mono font-noto-color-emoji font-noto-sans-cjk font-noto-serif-cjk
+brew install --cask --force proton-pass android-platform-tools font-jetbrains-mono-nerd-font font-noto-sans font-noto-serif font-noto-sans-mono font-noto-color-emoji font-noto-sans-cjk font-noto-serif-cjk
 
 # Alacritty: the Homebrew cask was disabled on 2026-09-01 (it fails the
 # Gatekeeper check), so it has to come from the GitHub releases instead.

@@ -73,10 +73,14 @@ For defense in depth, configure Hetzner Cloud Firewall with matching rules:
 | Core | zsh-completions | ✓ | | |
 | Dev | rustup, mise, uv, sheldon | ✓ | ✓ | ✓ |
 | Shell | starship | ✓ | ✓ (cargo) | ✓ |
-| Dev | clang | ✓ | ✓ | ✓ |
+| Dev | clang, cmake | ✓ | ✓ | ✓ |
+| Dev | gcc, pkgconf | ✓ (base-devel) | ✓ | ✓ |
+| Dev | ruff, ty | uv | uv | ✓ |
 | Dev | google-benchmark | ✓ | ✓ | ✓ |
 | Dev | perf | ✓ | ✓ | |
-| CLI | bat, eza, fd, ripgrep, dust, bottom, zoxide, git-delta, fzf | ✓ | ✓ | ✓ |
+| CLI | bat, eza, fd, ripgrep, dust, bottom, zoxide, git-delta, fzf, jq, gh, tree | ✓ | ✓ | ✓ |
+| CLI | bat-extras (`man` via batman), typst | ✓ | | ✓ |
+| Device | android-platform-tools (adb) | | | ✓ |
 | Git | git-lfs | ✓ | ✓ | ✓ |
 | Sync | unison, syncthing | ✓ | ✓ | ✓ |
 | Media | wget | ✓ | ✓ | ✓ |
