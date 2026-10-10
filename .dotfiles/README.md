@@ -29,9 +29,12 @@ cfg push
 
 ## Updating
 
-Run `sysup` to update everything:
+Run `sysup` to update everything (`sysup -f` forces refreshes and
+reinstalls where the tool supports it). Missing tools are skipped and
+failures are listed at the end:
 - System packages (pacman/paru, dnf, or brew)
-- Rust toolchain and cargo packages
+- Rust toolchain and cargo packages (on macOS the `stable` toolchain is
+  left alone, since some projects pin it; other toolchains are updated)
 - uv tools, mise runtimes
 - Sheldon, neovim, and tmux plugins
 
@@ -66,9 +69,10 @@ For defense in depth, configure Hetzner Cloud Firewall with matching rules:
 | Category | Packages | Arch | Fedora | macOS |
 |----------|----------|:----:|:------:|:-----:|
 | Core | git, zsh, tmux, neovim | ✓ | ✓ | ✓ |
-| Core | alacritty | ✓ | | ✓ |
+| Core | alacritty | ✓ | | ✓ (manual) |
 | Core | zsh-completions | ✓ | | |
 | Dev | rustup, mise, uv, sheldon | ✓ | ✓ | ✓ |
+| Shell | starship | ✓ | ✓ (cargo) | ✓ |
 | Dev | clang | ✓ | ✓ | ✓ |
 | Dev | google-benchmark | ✓ | ✓ | ✓ |
 | Dev | perf | ✓ | ✓ | |
@@ -98,6 +102,7 @@ For defense in depth, configure Hetzner Cloud Firewall with matching rules:
 | [mise](https://github.com/jdx/mise) | polyglot runtime manager (node, python, etc.) |
 | [uv](https://github.com/astral-sh/uv) | fast Python package/project manager |
 | [sheldon](https://github.com/rossmacarthur/sheldon) | zsh plugin manager |
+| [starship](https://github.com/starship/starship) | shell prompt (gruvbox-rainbow preset) |
 
 ### CLI replacements
 
@@ -152,15 +157,17 @@ Plugins:
 - [fzf-tab](https://github.com/Aloxaf/fzf-tab) - fuzzy completion
 
 `~/.zshenv` sets `ZDOTDIR` to `~/.config/zsh/`, keeping the home directory clean. The config is modular:
-- `.zshenv_darwin` / `.zshenv_linux` - OS-specific env vars (PATH, etc.)
-- `.zshrc` - main entry point
-- `.zsh_options` - shell options
-- `.zsh_history` - history settings
-- `.zsh_aliases` - command aliases
-- `.zsh_functions` - shell functions
-- `.zsh_tools` - tool integrations (mise, uv)
-- `.zsh_prompt` - prompt configuration
-- `.zsh_darwin` / `.zsh_linux` - OS-specific interactive settings
+- `.zshenv` - environment for every shell (XDG, PATH, editor), then `env/<os>.zsh`
+- `.zprofile` - login shells: restores PATH order after macOS `path_helper`
+- `.zshrc` - interactive entry point; sources the files below in order
+- `rc.d/*.zsh` - shared config by number: cache helper, options, history, completion, plugins, aliases, functions, prompt, keys
+- `os/<os>*.zsh` - OS-specific interactive settings
+- `functions/` - autoloaded functions (`cfg-update`, `fshow`, ...)
+- `local/` - untracked, machine-local config (ignored via `.config/zsh/.gitignore`): `secrets.zsh` and `env.zsh` are sourced from `.zshenv`, anything else from `.zshrc`. Work-specific aliases and internal hostnames go here, not in the repo.
+
+Slow `tool init zsh` outputs (sheldon, fzf, starship, zoxide) are cached in `~/.cache/zsh/` and regenerated when the tool's binary changes.
+
+Prompt: [starship](https://starship.rs/) with the `gruvbox-rainbow` preset (`~/.config/starship.toml`; needs a Nerd Font in the terminal). Machines without starship fall back to a plain `vcs_info` prompt.
 
 ### Terminal
 
@@ -209,6 +216,7 @@ Notable settings:
 │   ├── nvim/                # neovim (LazyVim)
 │   ├── nyaa/                # torrent search
 │   ├── sheldon/             # zsh plugin manager
+│   ├── starship.toml        # prompt (gruvbox-rainbow preset)
 │   ├── sway/                # Wayland compositor (Linux)
 │   ├── tmux/                # tmux config
 │   ├── transmission-daemon/ # torrent client

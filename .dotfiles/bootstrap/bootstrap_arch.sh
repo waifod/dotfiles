@@ -12,7 +12,7 @@ echo "Installing packages via Pacman..."
 sudo pacman -S --needed --noconfirm \
   git zsh zsh-completions tmux neovim alacritty \
   base-devel clang benchmark perf \
-  rustup mise uv sheldon \
+  rustup mise uv sheldon starship \
   bat eza fd ripgrep dust bottom zoxide git-delta fzf \
   git-lfs unison syncthing wget \
   mpv yt-dlp newsboat transmission-cli \

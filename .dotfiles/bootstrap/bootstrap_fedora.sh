@@ -52,6 +52,11 @@ if ! command -v sheldon >/dev/null 2>&1; then
   cargo install sheldon
 fi
 
+if ! command -v starship >/dev/null 2>&1; then
+  echo -e "\nInstalling starship via cargo..."
+  cargo install starship --locked
+fi
+
 # --- Security hardening ---
 echo -e "\nConfiguring security..."
 
