@@ -1,0 +1,10 @@
+# man: resolve aliases (e.g. cat -> bat) before showing the page via batman.
+# https://github.com/eth-p/bat-extras/
+if (( ! $+commands[batman] )); then
+    command man "$@"
+elif [[ -n $1 && -v "aliases[$1]" ]]; then
+    local alias_parts=( ${(z)aliases[$1]} )
+    command batman "${alias_parts[1]}" "${@:2}"
+else
+    command batman "$@"
+fi

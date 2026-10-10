@@ -1,5 +1,6 @@
 #!/bin/sh
-set -e
+# Update system packages and developer tools. A missing tool is skipped and a
+# failing one is reported at the end; neither stops the remaining updates.
 
 usage() {
   cat <<EOF
@@ -12,6 +13,11 @@ Update system packages and developer tools.
                cargo install-update --force, rustup update --force,
                uv tool upgrade --reinstall, mise self-update --force,
                sheldon lock --reinstall
+
+On macOS, rustup's stable toolchain is left alone: Brazil packages (for
+example RoutingNativeService's make sync) pin it to the version set's Rust,
+and updating it would undo the pin. Other toolchains and rustup itself are
+updated. On Linux everything is updated.
 EOF
 }
 
@@ -32,81 +38,113 @@ while [ $# -gt 0 ]; do
   shift
 done
 
+FAILED=""
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
 # Return the first argument when forcing, the second otherwise.
 pick() {
   if [ "$FORCE" -eq 1 ]; then printf '%s' "$1"; else printf '%s' "$2"; fi
 }
 
+# section NAME TOOL: print a header and return non-zero (skip) if TOOL is missing.
+section() {
+  echo "=== $1 ==="
+  if ! have "$2"; then
+    echo "$2 not found, skipping."
+    return 1
+  fi
+}
+
+# run NAME CMD...: run a command, remembering NAME if it fails.
+run() {
+  name=$1
+  shift
+  "$@" || FAILED="$FAILED $name"
+}
+
 # Detect OS and update system packages
-case "$(uname -s)" in
+OS=$(uname -s)
+case "$OS" in
 Linux)
-  if command -v dnf >/dev/null 2>&1; then
+  if have dnf; then
     # --refresh already forces a metadata refresh; dnf has no stronger option.
     echo "=== DNF ==="
-    sudo dnf upgrade --refresh
-  elif command -v paru >/dev/null 2>&1; then
+    run dnf sudo dnf upgrade --refresh
+  elif have paru; then
     echo "=== Paru ==="
-    paru "$(pick -Syyu -Syu)"
-  elif command -v pacman >/dev/null 2>&1; then
+    run paru paru "$(pick -Syyu -Syu)"
+  elif have pacman; then
     echo "=== Pacman ==="
-    sudo pacman "$(pick -Syyu -Syu)"
+    run pacman sudo pacman "$(pick -Syyu -Syu)"
   fi
   ;;
 Darwin)
-  if command -v mwinit >/dev/null 2>&1; then
+  if have mwinit; then
     echo "=== Midway ==="
-    mwinit -s
+    run mwinit mwinit -s
   fi
-  echo "=== Homebrew ==="
-  if [ "$FORCE" -eq 1 ]; then
-    brew update --force && brew upgrade --greedy
-  else
-    brew update && brew upgrade
+  if section Homebrew brew; then
+    if [ "$FORCE" -eq 1 ]; then
+      run brew sh -c 'brew update --force && brew upgrade --greedy'
+    else
+      run brew sh -c 'brew update && brew upgrade'
+    fi
   fi
   ;;
 esac
 
 # Cross-platform tools
-echo "=== Cargo ==="
-if [ "$FORCE" -eq 1 ]; then
-  cargo install-update -a --force
-else
-  cargo install-update -a
+if section Cargo cargo; then
+  run cargo cargo install-update -a $(pick --force '')
 fi
 
-echo "=== Rustup ==="
-if [ "$FORCE" -eq 1 ]; then
-  rustup update --force
-else
-  rustup update
-fi
-
-echo "=== uv ==="
-if [ "$FORCE" -eq 1 ]; then
-  uv tool upgrade --all --reinstall
-else
-  uv tool upgrade --all
-fi
-
-echo "=== Mise ==="
-if command -v dnf >/dev/null 2>&1; then
-  if [ "$FORCE" -eq 1 ]; then
-    mise self-update --force
+if section Rustup rustup; then
+  if [ "$OS" = Darwin ]; then
+    run rustup-self rustup self update
+    # Every installed toolchain except stable-*, which a Brazil package may pin.
+    toolchains=$(rustup toolchain list | awk '{print $1}' | grep -v '^stable-' | grep -v '^no$')
+    if [ -n "$toolchains" ]; then
+      # shellcheck disable=SC2086 # word splitting of the toolchain list is intended
+      run rustup rustup update --no-self-update $(pick --force '') $toolchains
+    else
+      echo "No toolchains to update besides stable."
+    fi
+    echo "Left stable as is; re-run your package's make sync if it needs a different pin."
   else
-    mise self-update
+    run rustup rustup update $(pick --force '')
   fi
 fi
-mise upgrade
 
-echo "=== Sheldon ==="
-if [ "$FORCE" -eq 1 ]; then
-  sheldon lock --reinstall
-else
-  sheldon lock --update
+if section uv uv; then
+  run uv uv tool upgrade --all $(pick --reinstall '')
 fi
 
-echo "=== Neovim (Lazy) ==="
-nvim --headless "+Lazy! sync" +qa
+if section Mise mise; then
+  if have dnf; then
+    run mise-self mise self-update $(pick --force '')
+  fi
+  run mise mise upgrade
+fi
+
+if section Sheldon sheldon; then
+  run sheldon sheldon lock $(pick --reinstall --update)
+fi
+
+if section "Neovim (Lazy)" nvim; then
+  run nvim nvim --headless "+Lazy! sync" +qa
+fi
 
 echo "=== Tmux (TPM) ==="
-"$HOME/.tmux/plugins/tpm/bin/update_plugins" all
+tpm="$HOME/.tmux/plugins/tpm/bin/update_plugins"
+if [ -x "$tpm" ]; then
+  run tpm "$tpm" all
+else
+  echo "TPM not found, skipping."
+fi
+
+if [ -n "$FAILED" ]; then
+  echo
+  echo "Failed:$FAILED" >&2
+  exit 1
+fi

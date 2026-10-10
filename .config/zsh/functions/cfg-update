@@ -1,0 +1,9 @@
+# cfg-update: commit all tracked dotfile changes, amending today's commit
+# if one exists. Spells out the cfg alias because autoload -U skips aliases.
+local msg="Update for $(date +%d.%m.%y)"
+local -a cfg=(git --git-dir="${DOTFILES_HOME:-$HOME/.dotfiles}" --work-tree="$HOME")
+if [[ $($cfg log -1 --format=%s 2>/dev/null) == "$msg" ]]; then
+    $cfg commit --all --amend --no-edit
+else
+    $cfg commit --all -m "$msg"
+fi

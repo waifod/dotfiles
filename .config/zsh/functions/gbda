@@ -1,0 +1,8 @@
+# gbda: delete local branches already merged into HEAD, keeping the
+# current branch, the remote default branch, and common trunk names.
+local main
+main=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)
+main=${main#origin/}
+git branch --no-color --merged \
+    | command grep -vE "^([+*]|\s*(${main:-main}|main|mainline|develop)\s*$)" \
+    | command xargs git branch --delete 2>/dev/null
