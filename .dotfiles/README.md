@@ -11,10 +11,10 @@ curl -L https://github.com/waifod/dotfiles/archive/main.tar.gz | tar xz -C /tmp
 
 This will:
 1. Install OS packages (core tools, CLI replacements, media, fonts)
-2. Set up Rust toolchain and cargo-update
+2. Set up the Rust toolchain
 3. Clone dotfiles as a bare repo to `~/.dotfiles`
-4. Checkout config files (backing up conflicts to `~/.config-backup/`)
-5. Install TPM, sheldon plugins, and neovim plugins
+4. Checkout config files (on the first checkout, pre-existing files at tracked paths, and any symlink or file where a tracked directory goes, are moved to `~/.config-backup/<timestamp>/`; review them and merge machine-specific settings back)
+5. Install cargo-update, TPM, sheldon plugins, mise runtimes, Python tools (uv), and neovim plugins
 6. Change default shell to zsh
 
 Log out and back in after installation for the shell change to take effect.

@@ -1,15 +1,22 @@
 #!/bin/bash
-set -e
-trap 'echo "ERROR: Bootstrap failed at line $LINENO"' ERR
+set -eE
+trap 'echo "ERROR: ${0##*/} failed at line $LINENO" >&2' ERR
 
 echo -e "\n=== macOS Setup ===\n"
 
-# Install Homebrew if not present
-if ! command -v brew >/dev/null 2>&1; then
+# Install Homebrew if not present. The installer does not add brew to this
+# script's PATH, so load its environment either way. Apple Silicon only.
+BREW="/opt/homebrew/bin/brew"
+if [ ! -x "$BREW" ]; then
   echo "Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   echo ""
 fi
+if [ ! -x "$BREW" ]; then
+  echo "ERROR: Homebrew not found at $BREW after install (Apple Silicon prefix expected)" >&2
+  exit 1
+fi
+eval "$("$BREW" shellenv)"
 
 echo "Installing packages via Homebrew..."
 brew install \

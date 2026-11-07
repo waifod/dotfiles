@@ -1,11 +1,20 @@
 #!/bin/bash
-set -e
-trap 'echo "ERROR: Bootstrap failed at line $LINENO"' ERR
+set -eEo pipefail
+trap '_l=$LINENO; [ -z "${FUNCNAME:-}" ] || _l="${BASH_LINENO[0]} (in ${FUNCNAME}())"; echo "ERROR: ${0##*/} failed at line $_l" >&2' ERR
 
 DOTFILES_REPO="https://github.com/waifod/dotfiles.git"
 DOTFILES_DIR="$HOME/.dotfiles"
 
 echo -e "\n=== Common Setup ===\n"
+
+# Each bootstrap_<os>.sh runs in its own process, so PATH changes made there
+# (Homebrew on macOS, ~/.local/bin from the mise installer on Fedora) do not
+# reach this script.
+if [ "$(uname -s)" = Darwin ]; then
+  [ -x /opt/homebrew/bin/brew ] || { echo "ERROR: Homebrew not found at /opt/homebrew/bin/brew; run bootstrap.sh, which installs it" >&2; exit 1; }
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 
 # --- Create directories ---
 mkdir -p "$HOME/.local/state/zsh"
@@ -16,30 +25,69 @@ mkdir -p "$HOME/sync"
 # --- Dotfiles ---
 if [ ! -d "$DOTFILES_DIR" ]; then
   echo -e "\nCloning dotfiles..."
-  git clone --bare "$DOTFILES_REPO" "$DOTFILES_DIR"
+  # The tracked .dotfiles/config replaces the clone's and expects files refs (format 0).
+  git clone --bare --ref-format=files "$DOTFILES_REPO" "$DOTFILES_DIR"
 fi
 
 cfg() {
-  /usr/bin/git --git-dir="$DOTFILES_DIR" --work-tree="$HOME" "$@"
+  # fsmonitor off: the work tree is $HOME. The tracked repo config
+  # (.dotfiles/config) disables it, but on a first run that file is only in
+  # place after the checkout below.
+  /usr/bin/git -c core.fsmonitor=false --git-dir="$DOTFILES_DIR" --work-tree="$HOME" "$@"
 }
 
 cfg config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 cfg config status.showUntrackedFiles no
 
-mkdir -p "$HOME/.config-backup"
-
-if cfg checkout 2>/dev/null; then
+if [ -e "$DOTFILES_DIR/index" ]; then
+  # An index exists, so a checkout has run before. A plain checkout keeps
+  # local edits but does not restore deleted tracked files; list those.
+  cfg checkout
+  missing=$(cfg ls-files --deleted)
+  if [ -n "$missing" ]; then
+    echo "WARNING: tracked files are missing from \$HOME. Check 'cfg status' and restore with 'cfg checkout -- <path>':" >&2
+    echo "$missing" | sed 's/^/  /' >&2
+  fi
   echo -e "\nChecked out config."
 else
-  echo -e "\nBacking up pre-existing dotfiles."
-  cfg checkout 2>&1 | awk '/^\s+/ {print $1}' | while read -r file; do
-    mkdir -p "$HOME/.config-backup/$(dirname "$file")"
-    mv "$HOME/$file" "$HOME/.config-backup/$file"
+  # First checkout. Files at tracked paths would block it, and one is always
+  # there: the repo tracks its own git config (.dotfiles/config), and the bare
+  # clone wrote an untracked one at that path. Move every existing tracked
+  # path aside; the checkout then writes the tracked versions.
+  backup_dir="$HOME/.config-backup/$(date +%Y%m%d-%H%M%S)"
+  echo -e "\nBacking up pre-existing dotfiles to $backup_dir"
+  cfg ls-tree -r -z --name-only HEAD | while IFS= read -r -d '' file; do
+    # A symlink or file at a parent path also blocks the checkout; move the
+    # shallowest such parent instead of the file under it.
+    target=$file
+    dir=$(dirname "$file")
+    while [ "$dir" != . ]; do
+      if [ -L "$HOME/$dir" ] || { [ -e "$HOME/$dir" ] && [ ! -d "$HOME/$dir" ]; }; then
+        target=$dir
+      fi
+      dir=$(dirname "$dir")
+    done
+    if [ -e "$HOME/$target" ] || [ -L "$HOME/$target" ]; then
+      mkdir -p "$backup_dir/$(dirname "$target")"
+      mv "$HOME/$target" "$backup_dir/$target"
+      echo "  $target"
+    fi
   done
-  cfg checkout
+  if ! cfg checkout; then
+    echo "ERROR: checkout failed after moving files to $backup_dir." >&2
+    echo "Keep that directory: it holds your original files. Fix the path git reports above and rerun;" >&2
+    echo "the rerun moves the files git already wrote to a new directory under ~/.config-backup/." >&2
+    exit 1
+  fi
+  # Print the backup reminder at exit, also when a later step fails: a rerun
+  # takes the set-up branch above and would not print it.
+  trap 'echo ""
+echo "Pre-existing files were moved to $backup_dir (originals from an earlier"
+echo "failed run are in an older directory under ~/.config-backup/). Review them and"
+echo "merge machine-specific settings back (shell environment goes in"
+echo "~/.config/zsh/local/env.zsh). The .dotfiles/config copies there are generated"
+echo "by git and can be deleted."' EXIT
 fi
-
-export PATH="$HOME/.cargo/bin:$PATH"
 
 # --- Cargo tools ---
 if ! cargo install-update --version >/dev/null 2>&1; then
@@ -84,10 +132,16 @@ if command -v nvim >/dev/null 2>&1; then
 fi
 
 # --- Change default shell to zsh ---
-if [ "$SHELL" != "$(which zsh)" ]; then
+# Skip if the login shell is already any zsh. /bin/zsh is the only zsh in
+# macOS's /etc/shells, and the first zsh on PATH there is Homebrew's.
+case "$SHELL" in
+*/zsh) ;;
+*)
+  if [ "$(uname -s)" = Darwin ]; then zsh_path=/bin/zsh; else zsh_path=$(command -v zsh); fi
   echo -e "\nChanging default shell to zsh..."
-  chsh -s "$(which zsh)"
-fi
+  chsh -s "$zsh_path"
+  ;;
+esac
 
 echo -e "\n=== Bootstrap complete ==="
 echo -e "\nNext steps:\n"

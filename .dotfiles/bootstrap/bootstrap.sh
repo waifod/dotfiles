@@ -1,6 +1,6 @@
 #!/bin/bash
-set -e
-trap 'echo "ERROR: Bootstrap failed at line $LINENO"' ERR
+set -eE
+trap 'echo "ERROR: ${0##*/} failed at line $LINENO" >&2' ERR
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
