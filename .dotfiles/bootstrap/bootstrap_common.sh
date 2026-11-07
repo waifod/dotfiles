@@ -7,6 +7,10 @@ DOTFILES_DIR="$HOME/.dotfiles"
 
 echo -e "\n=== Common Setup ===\n"
 
+# git ls-tree and ls-files below list paths relative to the current
+# directory, and only under it, so run from the work tree root.
+cd "$HOME"
+
 # Each bootstrap_<os>.sh runs in its own process, so PATH changes made there
 # (Homebrew on macOS, ~/.local/bin from the mise installer on Fedora) do not
 # reach this script.
