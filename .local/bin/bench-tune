@@ -1,0 +1,579 @@
+#!/bin/bash
+# bench-tune — Tune a Linux machine for repeatable benchmarks.
+#
+# A measurement is only useful if it is repeatable: a 2% improvement is
+# invisible under 5% of noise. This script tames OS and hardware noise
+# sources, runs your benchmark, and restores everything on exit.
+# Nothing survives a reboot.
+#
+# Usage:
+#   bench-tune <command> [args...]        Run command with full tuning
+#   bench-tune --pin <core> <cmd>         Pin to specific core
+#   bench-tune --apply                    Apply tuning (manual restore with --restore)
+#   bench-tune --restore                  Restore saved state
+#   bench-tune --status                   Show current tuning state
+#   bench-tune --dry-run <cmd>            Show what would change, don't apply
+#   bench-tune --no-drop-cache <cmd>      Skip dropping filesystem caches
+#
+# Examples:
+#   sudo bench-tune ./my_benchmark --repetitions=10
+#   sudo bench-tune --pin 2 ./benchmark
+#   sudo bench-tune --apply && taskset -c 2 ./bench && sudo bench-tune --restore
+#
+# Tunings applied (each eliminates a specific noise source):
+#
+#   Tuning                      Why it matters for benchmarks
+#   ─────────────────────────── ──────────────────────────────────────────────────
+#   1. Governor → performance   Without it, CPU ramps clock up/down mid-run
+#   2. Turbo/boost off          Turbo varies with temperature and power budget
+#   3. SMT off                  Sibling thread steals execution units and cache
+#   4. THP → never              Kernel compacts pages in background, causing stalls
+#   5. ASLR off                 Randomized layout changes branch/cache behavior
+#   6. NMI watchdog off         Periodic interrupt fires every second on each core
+#   7. Deep C-states off        Core wakes from C3+ with variable µs-level latency
+#   8. IRQ affinity (--pin)     Interrupts on the benchmark core steal cycles
+#   9. KSM off                  Background page scanner causes cache pollution
+#  10. Swap off                 Page-out to disk adds ms-level unpredictable stalls
+#  11. Drop fs caches           Ensures cold-start I/O benchmarks are truly cold
+#  12. Printk suppressed        Console output contends on locks
+#
+# Platform notes:
+#   - VMs/cloud (EC2, etc.): no cpufreq, no boost, no SMT on Graviton. Script
+#     gracefully skips unavailable knobs — THP, ASLR, NMI still help.
+#   - Bare metal: all 12 tunings apply. Best results on homogeneous cores (AMD).
+#   - Hybrid CPUs (Intel P+E): use --pin to lock onto a P-core.
+#
+# Caveats:
+#   - Disabling SMT halves visible cores (fine for single-threaded benchmarks).
+#   - Disabling swap can OOM-kill processes if memory is tight.
+#   - Disabling turbo lowers absolute throughput — relative comparisons still valid.
+#
+# State file: /run/bench-tune.state (root-owned, not world-writable).
+# Lock file: /run/bench-tune.lock (prevents concurrent invocations).
+#
+# Dependencies: bash, coreutils, util-linux (swapon). Optional: cpupower, python3
+#               (for IRQ affinity mask computation with --pin).
+#
+# Requires: root (sudo). Linux only (x86_64 and aarch64).
+
+set -euo pipefail
+
+STATE_FILE="/run/bench-tune.state"
+LOCK_FILE="/run/bench-tune.lock"
+PIN_CORE=""
+DRY_RUN=false
+NO_DROP_CACHE=false
+
+# --- Output (all to stderr so benchmark stdout is clean) ---
+
+red()    { printf '\033[31m%s\033[0m\n' "$*" >&2; }
+green()  { printf '\033[32m%s\033[0m\n' "$*" >&2; }
+yellow() { printf '\033[33m%s\033[0m\n' "$*" >&2; }
+cyan()   { printf '\033[36m%s\033[0m\n' "$*" >&2; }
+dim()    { printf '\033[90m%s\033[0m\n' "$*" >&2; }
+
+# --- Helpers ---
+
+# Read a sysfs/procfs file, returning empty string if missing or unreadable.
+# Exits 0 always (use the output to check emptiness).
+read_or_empty() {
+    cat "$1" 2>/dev/null || echo ""
+}
+
+# Write a value to a sysfs/procfs path. Returns 1 if path missing or not writable.
+write_if_exists() {
+    local path="$1" value="$2"
+    if [[ -e "$path" ]] && [[ -w "$path" ]]; then
+        echo "$value" > "$path" 2>/dev/null && return 0
+    fi
+    return 1
+}
+
+# Attempt a tuning write; print success (✓) or skip (⊘) with the given label.
+try_tune() {
+    local label="$1" path="$2" value="$3"
+    if [[ "$DRY_RUN" == true ]]; then
+        if [[ -e "$path" ]] && [[ -w "$path" ]]; then
+            dim "  → would set $label ($(cat "$path" 2>/dev/null) → $value)"
+        else
+            dim "  ⊘ $label (not available)"
+        fi
+        return
+    fi
+    if write_if_exists "$path" "$value"; then
+        dim "  ✓ $label"
+    else
+        dim "  ⊘ $label (not available)"
+    fi
+}
+
+# Acquire an exclusive lock to prevent concurrent invocations from trampling state.
+acquire_lock() {
+    if [[ -e "$LOCK_FILE" ]]; then
+        local lock_pid
+        lock_pid=$(cat "$LOCK_FILE" 2>/dev/null || echo "")
+        if [[ -n "$lock_pid" ]] && kill -0 "$lock_pid" 2>/dev/null; then
+            red "Error: another bench-tune is running (PID $lock_pid)"
+            red "  If stale, remove $LOCK_FILE and $STATE_FILE manually."
+            exit 1
+        fi
+        # Stale lock — remove it
+        rm -f "$LOCK_FILE"
+    fi
+    echo $$ > "$LOCK_FILE"
+}
+
+release_lock() {
+    rm -f "$LOCK_FILE"
+}
+
+# --- Save current state ---
+# State is saved as quoted shell assignments to /run/ (root-owned, not /tmp).
+
+save_state() {
+    # Compute nproc BEFORE disabling SMT (for correct IRQ mask later)
+    local nproc_now
+    nproc_now=$(nproc)
+
+    # Save C-state disable flags individually
+    local cstate_state=""
+    if [[ -d /sys/devices/system/cpu/cpu0/cpuidle ]]; then
+        while IFS= read -r -d '' f; do
+            cstate_state+="$(cat "$f" 2>/dev/null):$f "
+        done < <(find /sys/devices/system/cpu -path "*/cpuidle/*/disable" -print0 2>/dev/null)
+    fi
+
+    # Save IRQ affinities if we're going to modify them
+    local irq_state=""
+    if [[ -n "$PIN_CORE" ]]; then
+        for f in /proc/irq/*/smp_affinity; do
+            [[ -f "$f" ]] && irq_state+="$(cat "$f" 2>/dev/null):$f "
+        done
+    fi
+
+    cat > "$STATE_FILE" << STATEEOF
+PREV_GOVERNOR="$(read_or_empty /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)"
+PREV_SMT="$(read_or_empty /sys/devices/system/cpu/smt/control)"
+PREV_BOOST="$(read_or_empty /sys/devices/system/cpu/cpufreq/boost)"
+PREV_BOOST_INTEL="$(read_or_empty /sys/devices/system/cpu/intel_pstate/no_turbo)"
+PREV_THP="$(sed 's/.*\[\(.*\)\].*/\1/' /sys/kernel/mm/transparent_hugepage/enabled 2>/dev/null || echo "")"
+PREV_THP_DEFRAG="$(sed 's/.*\[\(.*\)\].*/\1/' /sys/kernel/mm/transparent_hugepage/defrag 2>/dev/null || echo "")"
+PREV_ASLR="$(read_or_empty /proc/sys/kernel/randomize_va_space)"
+PREV_NMI="$(read_or_empty /proc/sys/kernel/nmi_watchdog)"
+PREV_KSM="$(read_or_empty /sys/kernel/mm/ksm/run)"
+PREV_PRINTK="$(cat /proc/sys/kernel/printk 2>/dev/null | awk '{print $1}' || echo "")"
+PREV_SWAP="$(swapon --show --noheadings 2>/dev/null | awk '{print $1}' | paste -sd, || echo "")"
+PREV_NPROC="$nproc_now"
+PREV_CSTATE="$cstate_state"
+PREV_IRQ="$irq_state"
+STATEEOF
+    chmod 600 "$STATE_FILE"
+    dim "  State saved to $STATE_FILE"
+}
+
+# --- Apply tuning ---
+
+apply_tuning() {
+    cyan "🔧 Applying benchmark tuning..."
+    echo "" >&2
+
+    # Check root
+    if [[ $EUID -ne 0 ]]; then
+        red "Error: must run as root (use sudo)"
+        exit 1
+    fi
+
+    acquire_lock
+    save_state
+
+    # 1. CPU frequency governor → performance
+    #    Without this, the CPU ramps clock up/down mid-measurement.
+    if command -v cpupower >/dev/null 2>&1; then
+        if [[ "$DRY_RUN" == true ]]; then
+            dim "  → would set CPU governor → performance"
+        else
+            cpupower frequency-set -g performance >/dev/null 2>&1 && dim "  ✓ CPU governor → performance" || dim "  ⊘ CPU governor (not available)"
+        fi
+    elif [[ -e /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]]; then
+        if [[ "$DRY_RUN" != true ]]; then
+            for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+                echo performance > "$gov" 2>/dev/null
+            done
+        fi
+        dim "  ✓ CPU governor → performance"
+    else
+        dim "  ⊘ CPU governor (no cpufreq — VM or fixed-clock CPU)"
+    fi
+
+    # 2. Disable turbo/boost — turbo varies with temperature and power budget.
+    try_tune "Turbo boost → off" /sys/devices/system/cpu/cpufreq/boost "0"
+    # Intel pstate uses inverted logic (1 = no turbo)
+    try_tune "Intel turbo → off" /sys/devices/system/cpu/intel_pstate/no_turbo "1"
+
+    # 3. Disable SMT — sibling thread steals execution units and cache.
+    try_tune "SMT → off" /sys/devices/system/cpu/smt/control "off"
+
+    # 4. THP → never — kernel compacts pages in background, causing stalls.
+    try_tune "THP → never" /sys/kernel/mm/transparent_hugepage/enabled "never"
+    try_tune "THP defrag → never" /sys/kernel/mm/transparent_hugepage/defrag "never"
+
+    # 5. ASLR off — randomized layout changes branch/cache behavior between runs.
+    try_tune "ASLR → off" /proc/sys/kernel/randomize_va_space "0"
+
+    # 6. NMI watchdog off — periodic interrupt fires every second on each core.
+    if [[ "$DRY_RUN" == true ]]; then
+        dim "  → would set NMI watchdog → off"
+    elif sysctl -w kernel.nmi_watchdog=0 >/dev/null 2>&1; then
+        dim "  ✓ NMI watchdog → off"
+    else
+        dim "  ⊘ NMI watchdog → off (not available)"
+    fi
+
+    # 7. Deep C-states off — core wakes from C3+ with variable µs-level latency.
+    #    We save and disable each state individually (state index >= 2).
+    if [[ -d /sys/devices/system/cpu/cpu0/cpuidle ]]; then
+        if [[ "$DRY_RUN" != true ]]; then
+            while IFS= read -r -d '' f; do
+                # Extract state index from path: .../stateN/disable
+                local state_name
+                state_name=$(basename "$(dirname "$f")")
+                local idx=${state_name#state}
+                # Only disable state2 and above
+                if [[ "$idx" =~ ^[0-9]+$ ]] && [[ "$idx" -ge 2 ]]; then
+                    echo 1 > "$f" 2>/dev/null
+                fi
+            done < <(find /sys/devices/system/cpu -path "*/cpuidle/*/disable" -print0 2>/dev/null)
+        fi
+        dim "  ✓ Deep C-states → disabled (C0/C1 only)"
+    else
+        dim "  ⊘ C-states (not available)"
+    fi
+
+    # 8. IRQ affinity — move interrupts off the benchmark core.
+    #    Requires python3 for hex mask computation; skips silently if unavailable.
+    #    Uses PREV_NPROC (saved before SMT disable) for correct mask width.
+    if [[ -n "$PIN_CORE" ]]; then
+        local all_cores
+        # Use the pre-SMT-disable core count for correct mask
+        all_cores=$(cat "$STATE_FILE" 2>/dev/null | grep PREV_NPROC | cut -d'"' -f2 || nproc)
+        local irq_mask
+        irq_mask=$(python3 -c "n=int('$all_cores'); pin=int('$PIN_CORE'); mask=(1<<n)-1-(1<<pin); print(f'{mask:x}')" 2>/dev/null || echo "")
+        if [[ -n "$irq_mask" ]] && [[ "$DRY_RUN" != true ]]; then
+            for irq in /proc/irq/*/smp_affinity; do
+                echo "$irq_mask" > "$irq" 2>/dev/null || true
+            done
+            dim "  ✓ IRQs moved away from core $PIN_CORE"
+        elif [[ -n "$irq_mask" ]]; then
+            dim "  → would move IRQs away from core $PIN_CORE (mask=0x$irq_mask)"
+        fi
+    fi
+
+    # 9. KSM off — background page scanner causes cache pollution.
+    try_tune "KSM → off" /sys/kernel/mm/ksm/run "0"
+
+    # 10. Swap off — page-out to disk adds ms-level unpredictable stalls.
+    if [[ "$DRY_RUN" != true ]]; then
+        if swapon --show --noheadings 2>/dev/null | grep -q .; then
+            swapoff -a 2>/dev/null && dim "  ✓ Swap → off" || dim "  ⊘ Swap (cannot disable)"
+        else
+            dim "  ✓ Swap already off"
+        fi
+    else
+        dim "  → would disable swap"
+    fi
+
+    # 11. Drop filesystem caches (skip with --no-drop-cache for hot-cache benchmarks).
+    if [[ "$NO_DROP_CACHE" == false ]]; then
+        if [[ "$DRY_RUN" != true ]]; then
+            sync
+            if echo 3 > /proc/sys/vm/drop_caches 2>/dev/null; then
+                dim "  ✓ Filesystem caches dropped"
+            else
+                dim "  ⊘ Filesystem cache drop (failed)"
+            fi
+        else
+            dim "  → would drop filesystem caches"
+        fi
+    else
+        dim "  ⊘ Filesystem cache drop skipped (--no-drop-cache)"
+    fi
+
+    # 12. Suppress kernel printk — console output contends on locks.
+    if [[ "$DRY_RUN" != true ]]; then
+        if [[ -e /proc/sys/kernel/printk ]] && [[ -w /proc/sys/kernel/printk ]]; then
+            echo 2 > /proc/sys/kernel/printk 2>/dev/null
+            dim "  ✓ Kernel printk → suppressed"
+        fi
+    else
+        dim "  → would suppress kernel printk"
+    fi
+
+    echo "" >&2
+    if [[ "$DRY_RUN" == true ]]; then
+        yellow "⚠ Dry run — no changes applied"
+    else
+        green "✓ System tuned for benchmarking"
+    fi
+    echo "" >&2
+}
+
+# --- Restore state ---
+
+restore_state() {
+    if [[ ! -f "$STATE_FILE" ]]; then
+        yellow "No saved state found at $STATE_FILE — nothing to restore."
+        release_lock
+        return
+    fi
+
+    cyan "🔄 Restoring previous state..."
+
+    # Source state file (safe: we wrote it, it's in /run with mode 600)
+    source "$STATE_FILE" || { red "Error: could not source $STATE_FILE"; release_lock; return; }
+
+    # Governor
+    if [[ -n "${PREV_GOVERNOR:-}" ]] && command -v cpupower >/dev/null 2>&1; then
+        cpupower frequency-set -g "$PREV_GOVERNOR" >/dev/null 2>&1 || true
+    elif [[ -n "${PREV_GOVERNOR:-}" ]] && [[ -e /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]]; then
+        for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+            echo "$PREV_GOVERNOR" > "$gov" 2>/dev/null || true
+        done
+    fi
+
+    # SMT
+    [[ -n "${PREV_SMT:-}" ]] && write_if_exists /sys/devices/system/cpu/smt/control "$PREV_SMT" || true
+
+    # Boost
+    [[ -n "${PREV_BOOST:-}" ]] && write_if_exists /sys/devices/system/cpu/cpufreq/boost "$PREV_BOOST" || true
+    [[ -n "${PREV_BOOST_INTEL:-}" ]] && write_if_exists /sys/devices/system/cpu/intel_pstate/no_turbo "$PREV_BOOST_INTEL" || true
+
+    # THP (both enabled and defrag)
+    [[ -n "${PREV_THP:-}" ]] && write_if_exists /sys/kernel/mm/transparent_hugepage/enabled "$PREV_THP" || true
+    [[ -n "${PREV_THP_DEFRAG:-}" ]] && write_if_exists /sys/kernel/mm/transparent_hugepage/defrag "$PREV_THP_DEFRAG" || true
+
+    # ASLR
+    [[ -n "${PREV_ASLR:-}" ]] && write_if_exists /proc/sys/kernel/randomize_va_space "$PREV_ASLR" || true
+
+    # NMI
+    [[ -n "${PREV_NMI:-}" ]] && sysctl -w kernel.nmi_watchdog="$PREV_NMI" >/dev/null 2>&1 || true
+
+    # KSM
+    [[ -n "${PREV_KSM:-}" ]] && write_if_exists /sys/kernel/mm/ksm/run "$PREV_KSM" || true
+
+    # C-states — restore each individually from saved state
+    if [[ -n "${PREV_CSTATE:-}" ]]; then
+        for entry in $PREV_CSTATE; do
+            local val="${entry%%:*}"
+            local path="${entry#*:}"
+            [[ -n "$path" ]] && [[ -e "$path" ]] && echo "$val" > "$path" 2>/dev/null || true
+        done
+    fi
+
+    # IRQ affinity — restore saved masks
+    if [[ -n "${PREV_IRQ:-}" ]]; then
+        for entry in $PREV_IRQ; do
+            local val="${entry%%:*}"
+            local path="${entry#*:}"
+            [[ -n "$path" ]] && [[ -e "$path" ]] && echo "$val" > "$path" 2>/dev/null || true
+        done
+    fi
+
+    # Swap
+    if [[ -n "${PREV_SWAP:-}" ]]; then
+        IFS=',' read -ra swap_devs <<< "$PREV_SWAP"
+        for dev in "${swap_devs[@]}"; do
+            [[ -n "$dev" ]] && swapon "$dev" 2>/dev/null || true
+        done
+    fi
+
+    # Printk
+    [[ -n "${PREV_PRINTK:-}" ]] && [[ -w /proc/sys/kernel/printk ]] && echo "$PREV_PRINTK" > /proc/sys/kernel/printk 2>/dev/null || true
+
+    rm -f "$STATE_FILE"
+    release_lock
+    green "✓ Restored"
+}
+
+# --- Status ---
+
+show_status() {
+    cyan "📊 Current benchmark tuning status:"
+    echo "" >&2
+
+    local val
+    val=$(read_or_empty /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)
+    printf "  %-28s %s\n" "Governor:" "${val:-n/a}" >&2
+
+    val=$(read_or_empty /sys/devices/system/cpu/smt/control)
+    printf "  %-28s %s\n" "SMT:" "${val:-n/a}" >&2
+
+    val=$(read_or_empty /sys/devices/system/cpu/cpufreq/boost)
+    [[ -z "$val" ]] && val=$(read_or_empty /sys/devices/system/cpu/intel_pstate/no_turbo)
+    printf "  %-28s %s\n" "Turbo/Boost:" "${val:-n/a}" >&2
+
+    val=$(sed 's/.*\[\(.*\)\].*/\1/' /sys/kernel/mm/transparent_hugepage/enabled 2>/dev/null || echo "")
+    printf "  %-28s %s\n" "THP:" "${val:-n/a}" >&2
+
+    val=$(read_or_empty /proc/sys/kernel/randomize_va_space)
+    printf "  %-28s %s\n" "ASLR:" "${val:-n/a}" >&2
+
+    val=$(read_or_empty /proc/sys/kernel/nmi_watchdog)
+    printf "  %-28s %s\n" "NMI watchdog:" "${val:-n/a}" >&2
+
+    val=$(read_or_empty /sys/kernel/mm/ksm/run)
+    printf "  %-28s %s\n" "KSM:" "${val:-n/a}" >&2
+
+    printf "  %-28s %s\n" "Swap:" "$(swapon --show --noheadings 2>/dev/null | wc -l | tr -d ' ') devices" >&2
+
+    local idle_disabled=0
+    if [[ -d /sys/devices/system/cpu/cpu0/cpuidle ]]; then
+        while IFS= read -r -d '' f; do
+            [[ "$(cat "$f" 2>/dev/null)" == "1" ]] && idle_disabled=$((idle_disabled+1))
+        done < <(find /sys/devices/system/cpu/cpu0/cpuidle -name "disable" -print0 2>/dev/null)
+    fi
+    printf "  %-28s %s\n" "Deep C-states disabled:" "$idle_disabled" >&2
+
+    echo "" >&2
+    if [[ -f "$STATE_FILE" ]]; then
+        yellow "  ⚠ Tuning is active (state saved at $STATE_FILE)"
+    else
+        dim "  Normal state (no tuning applied)"
+    fi
+}
+
+# --- Usage ---
+
+usage() {
+    cat >&2 << EOF
+Usage: bench-tune [options] [command] [args...]
+
+Tune a Linux machine for repeatable benchmarks, run your command, and restore.
+
+Options:
+  --pin <core>    Pin the command to a specific CPU core
+  --apply         Apply tuning without running a command (manual workflow)
+  --restore       Restore the saved pre-tuning state
+  --status        Show current tuning state
+  --dry-run       Show what would change without applying
+  --no-drop-cache Skip dropping filesystem caches (for hot-cache benchmarks)
+  --help          Show this help
+
+Examples:
+  sudo bench-tune ./my_benchmark --repetitions=10
+  sudo bench-tune --pin 2 ./benchmark
+  sudo bench-tune --dry-run ./benchmark       # preview only
+  sudo bench-tune --apply    # tune...
+  taskset -c 2 ./benchmark   # run manually...
+  sudo bench-tune --restore  # ...then restore
+
+Tunings applied (all reversed on exit or --restore):
+  CPU governor=performance, turbo=off, SMT=off, THP=never,
+  ASLR=off, NMI=off, deep C-states=off, KSM=off, swap=off,
+  IRQ affinity (with --pin), fs caches dropped, printk suppressed
+EOF
+    exit 0
+}
+
+# --- Main ---
+
+# Linux-only check
+if [[ "$(uname -s)" != "Linux" ]]; then
+    red "Error: bench-tune is Linux-only (detected $(uname -s))"
+    exit 1
+fi
+
+[[ $# -eq 0 ]] && usage
+
+# Parse arguments
+CMD=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --help|-h) usage ;;
+        --apply)
+            apply_tuning
+            exit 0
+            ;;
+        --restore)
+            restore_state
+            exit 0
+            ;;
+        --status)
+            show_status
+            exit 0
+            ;;
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --pin)
+            shift
+            if [[ $# -eq 0 ]] || [[ "$1" == -* ]]; then
+                red "Error: --pin requires a core number (e.g., --pin 2)"
+                exit 1
+            fi
+            if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+                red "Error: --pin value must be a non-negative integer, got '$1'"
+                exit 1
+            fi
+            PIN_CORE="$1"
+            shift
+            ;;
+        --no-drop-cache)
+            NO_DROP_CACHE=true
+            shift
+            ;;
+        *)
+            CMD+=("$@")
+            break
+            ;;
+    esac
+done
+
+if [[ ${#CMD[@]} -eq 0 ]] && [[ "$DRY_RUN" == false ]]; then
+    red "Error: no command specified"
+    usage
+fi
+
+# Dry run doesn't need root (just shows what would happen)
+if [[ "$DRY_RUN" == true ]]; then
+    apply_tuning
+    exit 0
+fi
+
+# Must be root for tuning
+if [[ $EUID -ne 0 ]]; then
+    red "Error: must run as root (use sudo)"
+    echo "  sudo bench-tune ${CMD[*]}" >&2
+    exit 1
+fi
+
+# Apply tuning with restore on exit (trap fires on normal exit, ERR, and signals)
+apply_tuning
+trap restore_state EXIT
+
+# Build the run command
+RUN_CMD=()
+if [[ -n "$PIN_CORE" ]]; then
+    RUN_CMD+=(taskset -c "$PIN_CORE")
+    cyan "📌 Pinning to core $PIN_CORE"
+fi
+RUN_CMD+=("${CMD[@]}")
+
+# Run the benchmark (NOT exec — exec would destroy the EXIT trap).
+# Drop back to the original user for the benchmark itself — we only needed
+# root for the kernel tuning above. This avoids the benchmark running as root
+# (which could skew results due to different capabilities/scheduling).
+set +e
+if [[ -n "${SUDO_USER:-}" ]]; then
+    cyan "▶ Running as $SUDO_USER: ${CMD[*]}"
+    echo "" >&2
+    sudo -u "$SUDO_USER" "${RUN_CMD[@]}"
+else
+    cyan "▶ Running: ${CMD[*]}"
+    echo "" >&2
+    "${RUN_CMD[@]}"
+fi
+bench_exit=$?
+set -e
+
+exit $bench_exit
