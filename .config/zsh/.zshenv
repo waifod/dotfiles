@@ -41,7 +41,10 @@ fi
 
 # User binaries take precedence over everything above. mise shims replace
 # `mise activate`: no per-prompt hook, and scripts/cron see the same tools.
+# Builder Toolbox comes first: its kiro-cli installer also links into
+# ~/.local/bin, and kiro-cli expects to resolve from ~/.toolbox/bin.
 path=(
+    "$HOME/.toolbox/bin"
     "$HOME/.local/bin"
     "$HOME/.cargo/bin"
     "$XDG_DATA_HOME/mise/shims"

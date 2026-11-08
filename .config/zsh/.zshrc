@@ -1,7 +1,3 @@
-
-# Added by Kiro CLI
-case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) export PATH="${PATH:+$PATH:}$HOME/.local/bin" ;; esac
-
 # .zshrc - interactive shells only.
 #
 #   rc.d/*.zsh     shared config, loaded in filename order

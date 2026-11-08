@@ -1,7 +1,3 @@
-
-# Added by Kiro CLI
-case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) export PATH="${PATH:+$PATH:}$HOME/.local/bin" ;; esac
-
 # .zprofile - login shells only (after .zshenv, before .zshrc).
 # One-time setup: PATH fix-ups, SSH agents.
 
