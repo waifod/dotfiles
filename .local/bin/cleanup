@@ -1,0 +1,463 @@
+#!/bin/zsh
+# Disk cleanup — interactive, cross-platform (macOS + Amazon Linux)
+# Usage: cleanup [--auto]   (--auto skips prompts, cleans safe targets only)
+set -e
+
+AUTO=false
+[[ "$1" == "--auto" ]] && AUTO=true
+
+# --- Helpers ---
+
+_bold()  { echo "\033[1m$1\033[0m" }
+_cyan()  { echo "\033[36m$1\033[0m" }
+_yellow(){ echo "\033[33m$1\033[0m" }
+_gray()  { echo "\033[90m$1\033[0m" }
+
+_ask() {
+    local prompt="$1"
+    if $AUTO; then return 0; fi
+    echo -n "  $prompt [Y/n] "
+    read -r answer
+    case "$answer" in
+        [nN]*) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+# Ask only in interactive mode; skip entirely in --auto (for destructive/risky items)
+_ask_interactive() {
+    local prompt="$1"
+    if $AUTO; then return 1; fi
+    echo -n "  $prompt [Y/n] "
+    read -r answer
+    case "$answer" in
+        [nN]*) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+_size() {
+    du -sh "$1" 2>/dev/null | cut -f1
+}
+
+_clean_section() {
+    local label="$1" size="$2" action="$3"
+    if [[ -z "$size" ]] || [[ "$size" == "0B" ]] || [[ "$size" == "0"* ]]; then
+        return
+    fi
+    if _ask "$label ($size)?"; then
+        eval "$action"
+    fi
+}
+
+# Same as _clean_section but skipped in --auto mode (for destructive/irreversible items)
+_clean_section_interactive() {
+    local label="$1" size="$2" action="$3"
+    if [[ -z "$size" ]] || [[ "$size" == "0B" ]] || [[ "$size" == "0"* ]]; then
+        return
+    fi
+    if _ask_interactive "$label ($size)?"; then
+        eval "$action"
+    fi
+}
+
+OS="$(uname -s)"
+
+# --- Disk snapshot ---
+
+if [[ "$OS" == "Darwin" ]]; then
+    BEFORE=$(df -g / | awk 'NR==2{print $4}')
+    echo "$(_bold '🧹 Disk cleanup') (macOS)"
+else
+    BEFORE=$(df -BG / | awk 'NR==2{print $4}' | tr -d 'G')
+    echo "$(_bold '🧹 Disk cleanup') (Linux)"
+fi
+echo ""
+
+# ============================================================
+# 1. BRAZIL PACKAGE CACHE (typically the #1 offender)
+# ============================================================
+echo "$(_cyan '📦 Brazil Package Cache')"
+
+# Detect actual cache location
+if [[ -d "$HOME/brazil-pkg-cache" ]]; then
+    BPC="$HOME/brazil-pkg-cache"
+elif [[ -d "/mybc" ]]; then
+    BPC="/mybc"
+elif [[ -d "$HOME/.brazil/packageCache" ]]; then
+    BPC="$HOME/.brazil/packageCache"
+fi
+
+if [[ -n "$BPC" ]] && [[ -d "$BPC" ]]; then
+    bpc_size=$(_size "$BPC")
+    if _ask "Clean Brazil package cache at $BPC ($bpc_size)?"; then
+        echo "  Stopping package cache..."
+        brazil-package-cache stop 2>/dev/null || true
+        echo "  Cleaning (keeping last 1 days)..."
+        brazil-package-cache clean --days 1 2>/dev/null || rm -rf "$BPC"/*
+        echo "  Restarting..."
+        brazil-package-cache start 2>/dev/null || true
+    fi
+fi
+echo ""
+
+# ============================================================
+# 2. TOOLBOX OLD VERSIONS (keeps only current)
+# ============================================================
+echo "$(_cyan '🔧 Toolbox Old Versions')"
+toolbox_size=$(_size "$HOME/.toolbox")
+echo "  Total toolbox size: $toolbox_size"
+
+if command -v toolbox >/dev/null 2>&1; then
+    if _ask "Remove old toolbox tool versions?"; then
+        toolbox clean --max-days 0 --min-versions 1 2>/dev/null && echo "  ✓ Cleaned old versions" || echo "  ⚠ toolbox clean failed, skipping"
+    fi
+fi
+echo ""
+
+# ============================================================
+# 3. WORKSPACE BUILD ARTIFACTS
+# ============================================================
+echo "$(_cyan '🏗️  Workspace Build Artifacts')"
+
+if [[ "$OS" == "Darwin" ]]; then
+    WS_ROOT="/Volumes/workplace"
+else
+    WS_ROOT="$HOME/workplace"
+fi
+
+if [[ -d "$WS_ROOT" ]]; then
+    # Stale workspaces (informational: list workspaces not touched in 30+ days)
+    stale_ws=$(find "$WS_ROOT" -maxdepth 1 -mindepth 1 -type d -mtime +30 2>/dev/null)
+    if [[ -n "$stale_ws" ]]; then
+        echo "  $(_yellow 'Stale workspaces (>30 days untouched):')"
+        echo "$stale_ws" | while read -r d; do
+            echo "    $(_size "$d")\t$(basename "$d")"
+        done
+        echo "  $(_gray '(remove manually: rm -rf /Volumes/workplace/<name>)')"
+        echo ""
+    fi
+
+    # Brazil build/ directories
+    build_dirs=$(find "$WS_ROOT" -maxdepth 3 -name "build" -type d 2>/dev/null)
+    if [[ -n "$build_dirs" ]]; then
+        echo "  Build directories:"
+        echo "$build_dirs" | while read -r d; do
+            echo "    $(_size "$d")\t$(echo "$d" | sed "s|$WS_ROOT/||")"
+        done 2>/dev/null
+        if _ask "Clean all workspace build/ directories?"; then
+            echo "$build_dirs" | while read -r d; do
+                ws_dir="$(dirname "$d")"
+                if [[ -f "$ws_dir/Config" ]] && command -v brazil-build >/dev/null 2>&1; then
+                    (cd "$ws_dir" && brazil-build clean 2>/dev/null) || rm -rf "$d"
+                else
+                    rm -rf "$d"
+                fi
+            done
+            echo "  ✓ Cleaned"
+        fi
+    fi
+
+    # node_modules (can be reinstalled)
+    nm_total=$(find "$WS_ROOT" -maxdepth 5 -name "node_modules" -type d -prune 2>/dev/null | xargs du -sh 2>/dev/null | sort -rh)
+    if [[ -n "$nm_total" ]]; then
+        nm_size=$(echo "$nm_total" | awk '{s+=$1} END{printf "%.1fG", s/1024}' 2>/dev/null || echo "?")
+        echo "\n  node_modules:"
+        echo "$nm_total" | head -5 | while read -r line; do echo "    $line" | sed "s|$WS_ROOT/||"; done
+        if _ask "Remove all node_modules (reinstall with brazil-build)?"; then
+            find "$WS_ROOT" -maxdepth 5 -name "node_modules" -type d -prune -exec rm -rf {} + 2>/dev/null
+            echo "  ✓ Cleaned"
+        fi
+    fi
+
+    # Rust target/ directories
+    rust_targets=$(find "$WS_ROOT" -maxdepth 5 -name "target" -type d -prune 2>/dev/null | grep -v node_modules)
+    if [[ -n "$rust_targets" ]]; then
+        echo "\n  Rust target/ directories:"
+        echo "$rust_targets" | while read -r d; do echo "    $(_size "$d")\t$d"; done
+        if _ask "Remove Rust target/ directories?"; then
+            echo "$rust_targets" | while read -r d; do rm -rf "$d"; done
+            echo "  ✓ Cleaned"
+        fi
+    fi
+
+    # Pickles test run output (screenshots, videos, device logs). Gitignored,
+    # regenerated on every run; grows by hundreds of MB per run.
+    pickles_out=$(find "$WS_ROOT" -maxdepth 4 -path "*PickleTest*/output" -type d -prune 2>/dev/null)
+    if [[ -n "$pickles_out" ]]; then
+        echo "\n  Pickles test output:"
+        echo "$pickles_out" | while read -r d; do echo "    $(_size "$d")\t$(echo "$d" | sed "s|$WS_ROOT/||")"; done
+        if _ask "Remove Pickles test output directories?"; then
+            echo "$pickles_out" | while read -r d; do rm -rf "$d"; done
+            echo "  ✓ Cleaned"
+        fi
+    fi
+
+    # Unison leftovers. Interrupted syncs leave .unison.<name>.<hash>.unison.tmp
+    # copies next to the real file or directory; they are never needed.
+    unison_tmp=$(find "$WS_ROOT" -name ".unison.*.unison.tmp" -not -path "*/build/*" 2>/dev/null)
+    if [[ -n "$unison_tmp" ]]; then
+        echo "\n  Unison temp files: $(echo "$unison_tmp" | wc -l | tr -d ' ')"
+        if _ask "Remove unison temp files?"; then
+            echo "$unison_tmp" | while read -r d; do rm -rf "$d"; done
+            echo "  ✓ Cleaned"
+        fi
+    fi
+
+    # Brazil state from the other host. config/brazil.prefs with a platform_overlay
+    # entry belongs to macOS only; on Cloud Desktop it makes Brazil resolve Mac
+    # binaries (2026-09-16). rust-toolchain.toml carries an absolute toolchain
+    # path and is regenerated by brazil-build sync. Report only; the fix is
+    # remote-sync's ignore list, and the affected workspace needs a re-sync.
+    if [[ "$OS" != "Darwin" ]]; then
+        foreign=$(grep -ls "platform_overlay" "$WS_ROOT"/*/config/brazil.prefs 2>/dev/null)
+        [[ -n "$foreign" ]] && echo "\n  $(_yellow 'macOS brazil.prefs on a Linux host (remove, then brazil ws sync --md):')\n$(echo "$foreign" | sed 's/^/    /')"
+    fi
+    stale_tc=$(grep -ls -E "^path = \"/(workplace|Volumes)/" "$WS_ROOT"/*/src/*/rust-toolchain.toml 2>/dev/null | while read -r f; do
+        p=$(sed -n 's/^path = "\([^"]*\)".*/\1/p' "$f"); [[ -d "$p" ]] || echo "$f"; done)
+    [[ -n "$stale_tc" ]] && echo "\n  $(_yellow 'rust-toolchain.toml pointing at a path that does not exist here (make sync / brazil-build sync fixes):')\n$(echo "$stale_tc" | sed 's/^/    /')"
+fi
+echo ""
+
+# ============================================================
+# 4. KEPLER / VEGA SDK (old versions)
+# ============================================================
+if [[ -d "$HOME/kepler" ]] || [[ -d "$HOME/vega" ]]; then
+    echo "$(_cyan '📡 Kepler / Vega SDK')"
+    [[ -d "$HOME/kepler" ]] && echo "  ~/kepler: $(_size "$HOME/kepler")"
+    [[ -d "$HOME/vega" ]]   && echo "  ~/vega:   $(_size "$HOME/vega")"
+
+    if [[ -d "$HOME/kepler/sdk" ]]; then
+        versions=$(ls -d "$HOME/kepler/sdk"/*/ 2>/dev/null | grep -v current | wc -l | tr -d ' ')
+        if [[ "$versions" -gt 1 ]]; then
+            if _ask "Remove old Kepler SDK versions ($versions non-current)?"; then
+                current=$(readlink "$HOME/kepler/sdk/current" 2>/dev/null || echo "")
+                for d in "$HOME/kepler/sdk"/*/; do
+                    [[ "$d" == *"/current/" ]] && continue
+                    [[ "$(basename "$d")" == "$(basename "$current")" ]] && continue
+                    rm -rf "$d"
+                done
+                echo "  ✓ Cleaned old SDK versions"
+            fi
+        fi
+    fi
+    echo ""
+fi
+
+# ============================================================
+# 5. DEV TOOL CACHES
+# ============================================================
+echo "$(_cyan '🗄️  Dev Tool Caches')"
+
+# Cargo
+cargo_size=$(_size "$HOME/.cargo/registry")
+[[ -n "$cargo_size" ]] && _clean_section "Clean Cargo registry cache" "$cargo_size" \
+    'cargo cache --autoclean 2>/dev/null || (rm -rf "$HOME/.cargo/registry/src" && echo "  ✓ Removed registry/src")'
+
+# rustup: pinned toolchains other than the default and the newest (1.3-2.3G each).
+# Channel toolchains (stable/beta/nightly) are left alone.
+if command -v rustup >/dev/null 2>&1; then
+    rustup_default=$(rustup default 2>/dev/null | awk '{print $1}')
+    pinned=$(rustup toolchain list 2>/dev/null | awk '{print $1}' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+-' | sort -V)
+    newest=$(echo "$pinned" | tail -1)
+    old_toolchains=$(echo "$pinned" | grep -vx "$rustup_default" | grep -vx "$newest")
+    if [[ -n "$old_toolchains" ]]; then
+        echo "  Old rustup toolchains (keeping default $rustup_default and newest $newest):"
+        echo "$old_toolchains" | while read -r t; do echo "    $(_size "$HOME/.rustup/toolchains/$t")\t$t"; done
+        if _ask "Uninstall old rustup toolchains?"; then
+            echo "$old_toolchains" | xargs rustup toolchain uninstall 2>/dev/null
+            echo "  ✓ Cleaned"
+        fi
+    fi
+fi
+
+# uv cache
+if [[ "$OS" == "Darwin" ]]; then
+    uv_cache="$HOME/Library/Caches/uv"
+else
+    uv_cache="$HOME/.cache/uv"
+fi
+uv_size=$(_size "$uv_cache")
+[[ -n "$uv_size" ]] && _clean_section "Clean uv cache" "$uv_size" 'uv cache clean 2>/dev/null'
+
+# mise old versions
+if command -v mise >/dev/null 2>&1; then
+    mise_size=$(_size "$HOME/.local/share/mise")
+    [[ -n "$mise_size" ]] && _clean_section "Prune unused mise runtimes" "$mise_size" 'mise prune -y 2>/dev/null'
+fi
+
+# npm cache
+npm_cache="$HOME/.npm/_cacache"
+npm_size=$(_size "$npm_cache")
+[[ -n "$npm_size" ]] && _clean_section "Clean npm cache" "$npm_size" 'npm cache clean --force 2>/dev/null'
+
+# Gradle
+gradle_size=$(_size "$HOME/.gradle/caches")
+[[ -n "$gradle_size" ]] && _clean_section "Clean Gradle caches" "$gradle_size" 'rm -rf "$HOME/.gradle/caches/"*'
+
+# pip
+pip_cache="${XDG_CACHE_HOME:-$HOME/.cache}/pip"
+[[ "$OS" == "Darwin" ]] && pip_cache="$HOME/Library/Caches/pip"
+pip_size=$(_size "$pip_cache")
+[[ -n "$pip_size" ]] && _clean_section "Clean pip cache" "$pip_size" 'pip cache purge 2>/dev/null || rm -rf "$pip_cache"'
+
+echo ""
+
+# ============================================================
+# 6. macOS-SPECIFIC
+# ============================================================
+if [[ "$OS" == "Darwin" ]]; then
+    echo "$(_cyan '🍎 macOS Caches')"
+
+    # Homebrew
+    brew_size=$(_size "$HOME/Library/Caches/Homebrew")
+    [[ -n "$brew_size" ]] && _clean_section "Clean Homebrew cache" "$brew_size" 'brew cleanup --prune=7 2>/dev/null'
+
+    # Xcode Derived Data
+    xcode_size=$(_size "$HOME/Library/Developer/Xcode/DerivedData")
+    [[ -n "$xcode_size" ]] && _clean_section "Clean Xcode DerivedData" "$xcode_size" 'rm -rf "$HOME/Library/Developer/Xcode/DerivedData"/*'
+
+    # Application caches. *.ShipIt dirs are Electron/Squirrel updater leftovers
+    # (Kiro, Slack, Proton Pass, ...); apps recreate them on the next update.
+    app_caches=(
+        "$HOME/Library/Caches/Google"
+        "$HOME/Library/Caches/aws"
+        "$HOME/Library/Caches/lima"
+        "$HOME/Library/Caches/electron"
+        "$HOME/Library/Caches/vscode-cpptools"
+        "$HOME"/Library/Caches/*.ShipIt(N)
+    )
+    app_total=0
+    for c in "${app_caches[@]}"; do
+        [[ -d "$c" ]] && app_total=$((app_total + $(du -sk "$c" 2>/dev/null | cut -f1)))
+    done
+    if [[ $app_total -gt 10240 ]]; then
+        app_human=$(echo "$app_total" | awk '{printf "%.0fM", $1/1024}')
+        _clean_section "Clean application caches (Chrome, AWS, Lima, VS Code, *.ShipIt updaters)" "$app_human" \
+            'for c in "${app_caches[@]}"; do rm -rf "$c" 2>/dev/null; done'
+    fi
+
+    # Lima/Finch
+    lima_size=$(_size "$HOME/.lima")
+    [[ -n "$lima_size" ]] && [[ "$lima_size" != "0B" ]] && \
+        _clean_section_interactive "Clean Lima/Finch VM images" "$lima_size" 'rm -rf "$HOME/.lima"/*'
+
+    # KBITS device images downloaded by the vega tooling (flash-device skill, ftvcli).
+    # ~3.3G per Callie build; re-downloadable from kbits.build.lab126.a2z.com.
+    kbits_dir="$HOME/.vega/builds/kbits"
+    kbits_size=$(_size "$kbits_dir")
+    if [[ -n "$kbits_size" ]] && [[ -d "$kbits_dir" ]]; then
+        find "$kbits_dir" -mindepth 2 -maxdepth 2 -type d 2>/dev/null | while read -r d; do
+            echo "    $(_size "$d")\t${d#$kbits_dir/}"
+        done
+        _clean_section_interactive "Clean KBITS device images" "$kbits_size" 'rm -rf "$kbits_dir"/*/*'
+    fi
+
+    # Logs older than 7 days
+    log_count=$(find "$HOME/Library/Logs" -type f -mtime +7 2>/dev/null | wc -l | tr -d ' ')
+    if [[ "$log_count" -gt 0 ]]; then
+        _clean_section "Remove old logs ($log_count files >7 days)" "${log_count} files" \
+            'find "$HOME/Library/Logs" -type f -mtime +7 -delete 2>/dev/null'
+    fi
+
+    # Trash
+    trash_size=$(_size "$HOME/.Trash")
+    [[ -n "$trash_size" ]] && [[ "$trash_size" != "0B" ]] && \
+        _clean_section_interactive "Empty Trash" "$trash_size" 'rm -rf "$HOME/.Trash"/*'
+
+    # Downloads older than 30 days
+    old_downloads=$(find "$HOME/Downloads" -type f -mtime +30 2>/dev/null | wc -l | tr -d ' ')
+    if [[ "$old_downloads" -gt 0 ]]; then
+        _clean_section_interactive "Remove old Downloads ($old_downloads files >30 days)" "${old_downloads} files" \
+            'find "$HOME/Downloads" -type f -mtime +30 -delete 2>/dev/null'
+    fi
+
+    echo ""
+fi
+
+# ============================================================
+# 7. DOCKER / FINCH
+# ============================================================
+if command -v docker >/dev/null 2>&1 || command -v finch >/dev/null 2>&1; then
+    echo "$(_cyan '🐳 Docker / Finch')"
+
+    if command -v finch >/dev/null 2>&1; then
+        finch_usage=$(finch system df 2>/dev/null | tail -n +2)
+        if [[ -n "$finch_usage" ]]; then
+            echo "  Finch disk usage:"
+            echo "$finch_usage" | while read -r line; do echo "    $line"; done
+            if _ask "Prune unused Finch images, containers, and volumes?"; then
+                finch system prune --all --volumes -f 2>/dev/null
+                echo "  ✓ Pruned"
+            fi
+        fi
+    elif command -v docker >/dev/null 2>&1; then
+        docker_usage=$(docker system df 2>/dev/null | tail -n +2)
+        if [[ -n "$docker_usage" ]]; then
+            echo "  Docker disk usage:"
+            echo "$docker_usage" | while read -r line; do echo "    $line"; done
+            if _ask "Prune unused Docker images, containers, and volumes?"; then
+                docker system prune --all --volumes -f 2>/dev/null
+                echo "  ✓ Pruned"
+            fi
+        fi
+    fi
+    echo ""
+fi
+
+# ============================================================
+# 8. GIT LOOSE OBJECTS
+# ============================================================
+if [[ -d "$WS_ROOT" ]]; then
+    large_git=$(find "$WS_ROOT" -maxdepth 3 -name ".git" -type d 2>/dev/null | while read -r g; do
+        size_kb=$(du -sk "$g" 2>/dev/null | cut -f1)
+        if [[ "$size_kb" -gt 512000 ]]; then  # >500MB
+            echo "$size_kb $g"
+        fi
+    done | sort -rn)
+    if [[ -n "$large_git" ]]; then
+        echo "$(_cyan '📚 Large Git Repositories')"
+        echo "$large_git" | while read -r kb path; do
+            echo "    $(echo "$kb" | awk '{printf "%.1fG", $1/1048576}')\t$(echo "$path" | sed "s|$WS_ROOT/||;s|/.git||")"
+        done
+        if _ask "Run git gc on large repos (>500MB .git)?"; then
+            echo "$large_git" | while read -r kb path; do
+                repo="$(dirname "$path")"
+                echo "    gc: $(basename "$repo")..."
+                git -C "$repo" gc --aggressive --prune=now 2>/dev/null
+            done
+            echo "  ✓ Compacted"
+        fi
+        echo ""
+    fi
+fi
+
+# ============================================================
+# 9. UNISON BACKUPS
+# ============================================================
+unison_bkp="$HOME/.local/state/unison"
+unison_size=$(_size "$unison_bkp")
+if [[ -n "$unison_size" ]] && [[ -d "$unison_bkp" ]]; then
+    echo "$(_cyan '🔄 Unison Backups')"
+    _clean_section "Clean Unison backup files" "$unison_size" 'rm -rf "$unison_bkp"/*.log "$unison_bkp"/bak/ 2>/dev/null; find "$unison_bkp" -name "*.bak" -delete 2>/dev/null'
+    echo ""
+fi
+
+# ============================================================
+# SUMMARY
+# ============================================================
+if [[ "$OS" == "Darwin" ]]; then
+    AFTER=$(df -g / | awk 'NR==2{print $4}')
+else
+    AFTER=$(df -BG / | awk 'NR==2{print $4}' | tr -d 'G')
+fi
+
+freed=$((AFTER - BEFORE))
+echo "$(_bold "✅ Done!") Freed ${freed}GB (${BEFORE}GB → ${AFTER}GB free)"
+
+# The Brazil package cacher refuses to download when the volume is above 95%
+# used, regardless of how much space the download needs. Warn if still above.
+used_pct=$(df / | awk 'NR==2{gsub("%","",$5); print $5}')
+if [[ "$used_pct" -ge 95 ]]; then
+    echo "$(_yellow "⚠ Disk still ${used_pct}% used; brazil-build will refuse to cache packages until below 95%")"
+fi
