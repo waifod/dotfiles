@@ -1,0 +1,171 @@
+#!/usr/bin/env zsh
+# resurrect-hook - make tmux-resurrect bring back programs that run under
+# Kiro's shell wrapper: Kiro CLI chats and nvim.
+#
+# Resurrect cannot do this by itself. Kiro's shell integration runs each
+# pane's shell inside a `kiro-cli-term` wrapper on a separate tty, so the
+# pane's saved command is just `zsh`. For Kiro, re-running the original
+# command would start a new conversation anyway.
+#
+# Registered as @resurrect-hook-post-save-layout. For every pane it rewrites
+# that pane's line in the save file:
+#   - interactive `kiro-cli-chat chat`: command `kiro-cli chat --resume-id
+#     <id>`, directory the chat's working directory;
+#   - otherwise nvim: command `nvim`, directory nvim's working directory, so
+#     auto-session restores that directory's session.
+# With `kiro-cli` and `"~nvim->nvim"` in @resurrect-processes, resurrect's
+# normal restore then types that command into the pane. The ids live inside
+# the save file, so they are versioned with it, and a save whose only change
+# is a different chat is not deduplicated away.
+#
+# Usage:
+#   resurrect-hook save <resurrect-file>   (the hook)
+#   resurrect-hook id <pid>                print the Kiro session id for a pid
+#
+# Session id resolution:
+#   1. `--resume-id <id>` on the command line.
+#   2. Otherwise a new conversation: the session under ~/.kiro/sessions whose
+#      createdAt is closest after the process start, within 5 minutes, and
+#      whose workspace contains the process's working directory.
+# Chats started with -r/--resume-picker, or switched with /resume or /new
+# inside the chat, may not resolve; those panes restore as a plain shell.
+
+emulate -L zsh
+setopt extended_glob pipe_fail
+zmodload zsh/datetime
+
+sessions_root=${KIRO_SESSIONS_DIR:-$HOME/.kiro/sessions}
+
+# Process start in epoch seconds. `ps -o etime` ([[dd-]hh:]mm:ss) works on
+# both BSD and procps; lstart's format is locale- and platform-dependent.
+proc_start() {
+    local et=${$(ps -o etime= -p $1 2>/dev/null)// /}
+    [[ -n $et ]] || return 1
+    local d=0 h=0 m=0 s=0
+    if [[ $et == *-* ]]; then d=${et%%-*}; et=${et#*-}; fi
+    local -a f=(${(s.:.)et})
+    case $#f in
+        3) h=$f[1] m=$f[2] s=$f[3] ;;
+        2) m=$f[1] s=$f[2] ;;
+        *) return 1 ;;
+    esac
+    print $(( EPOCHSECONDS - ((d * 24 + h) * 60 + m) * 60 - s ))
+}
+
+proc_cwd() {
+    if [[ -e /proc/$1/cwd ]]; then
+        print -r -- /proc/$1/cwd(:A)
+    else
+        lsof -a -p $1 -d cwd -Fn 2>/dev/null | sed -n 's/^n//p'
+    fi
+}
+
+session_id() {
+    local pid=$1 args
+    args=$(ps -o args= -p $pid 2>/dev/null) || return 1
+    if [[ $args == *--resume-id[=\ ]* ]]; then
+        local id=${args##*--resume-id[= ]}
+        print -r -- ${id%% *}
+        return
+    fi
+    [[ $args == *(\ -r|\ --resume|\ --resume-picker)(\ *|) ]] && return 1
+
+    local start cwd
+    start=$(proc_start $pid) || return 1
+    cwd=$(proc_cwd $pid)
+
+    local -a files=($sessions_root/*/sess_*/session.json(N.))
+    (( $#files )) || return 1
+
+    local id created ws t delta best= bestdelta=301 TZ=UTC
+    jq -r '[.id, .createdAt, (.workspacePaths[0] // "")] | @tsv' $files 2>/dev/null |
+    while IFS=$'\t' read -r id created ws; do
+        strftime -r -s t '%Y-%m-%dT%H:%M:%S' ${created%%.*} 2>/dev/null || continue
+        (( delta = t - start ))
+        (( delta >= -5 && delta < bestdelta )) || continue
+        [[ -z $cwd || -z $ws || $cwd == $ws || $cwd == $ws/* ]] || continue
+        best=$id bestdelta=$delta
+    done
+    [[ -n $best ]] && print -r -- $best
+}
+
+# Shallowest interactive kiro-cli-chat under <pid>, using the ps snapshot.
+find_chat() {
+    local -a queue=($1)
+    local p c
+    while (( $#queue )); do
+        p=$queue[1]; shift queue
+        if [[ $cmd[$p] == (|*/)kiro-cli-chat\ chat(|\ *) && $cmd[$p] != *--no-interactive* ]]; then
+            print $p
+            return
+        fi
+        for c in ${=kids[$p]}; do queue+=($c); done
+    done
+    return 1
+}
+
+# Shallowest nvim UI process under <pid>; prints the pid whose working
+# directory is nvim's :pwd (the --embed server, which follows :cd).
+find_nvim() {
+    local -a queue=($1)
+    local p c
+    while (( $#queue )); do
+        p=$queue[1]; shift queue
+        if [[ $cmd[$p] == (|*/)nvim(|\ *) && $cmd[$p] != *--(embed|headless)* ]]; then
+            for c in ${=kids[$p]}; do
+                [[ $cmd[$c] == (|*/)nvim\ *--embed* ]] && { print $c; return }
+            done
+            print $p
+            return
+        fi
+        for c in ${=kids[$p]}; do queue+=($c); done
+    done
+    return 1
+}
+
+cmd_save() {
+    local file=$1
+    [[ -f $file ]] || return 1
+
+    typeset -gA kids cmd
+    local pid ppid args
+    ps -A -o pid=,ppid=,args= | while read -r pid ppid args; do
+        kids[$ppid]+=" $pid"
+        cmd[$pid]=$args
+    done
+
+    # "<session>:<window>.<pane>" -> restore dir / restore command
+    local -A rdir rcmd
+    local s w p panepid chat id key nv
+    tmux list-panes -a -F $'#{session_name}\t#{window_index}\t#{pane_index}\t#{pane_pid}' |
+    while IFS=$'\t' read -r s w p panepid; do
+        key="$s:$w.$p"
+        if chat=$(find_chat $panepid) && id=$(session_id $chat); then
+            rdir[$key]=$(proc_cwd $chat)
+            rcmd[$key]="kiro-cli chat --resume-id $id"
+        elif nv=$(find_nvim $panepid); then
+            rdir[$key]=$(proc_cwd $nv)
+            rcmd[$key]="nvim"
+        fi
+    done
+    (( $#rcmd )) || return 0
+
+    local tmp=$file.kiro.$$ line
+    local -a f
+    while IFS= read -r line; do
+        f=("${(@ps:\t:)line}")
+        key="$f[2]:$f[3].$f[6]"
+        if [[ $f[1] == pane && -n ${rcmd[$key]} ]]; then
+            [[ -n ${rdir[$key]} ]] && f[8]=":${rdir[$key]}"
+            f[11]=":${rcmd[$key]}"
+            line=${(pj:\t:)f}
+        fi
+        print -r -- $line
+    done < $file >| $tmp && mv -f $tmp $file
+}
+
+case $1 in
+    save) cmd_save $2 ;;
+    id)   session_id $2 ;;
+    *)    print -u2 "usage: ${0:t} save <resurrect-file> | id <pid>"; exit 2 ;;
+esac
