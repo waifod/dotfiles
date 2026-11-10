@@ -17,6 +17,12 @@ export SDKROOT="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
 # Kepler SDK
 export KEPLER_SDK_PATH="$HOME/kepler/sdk/current"
 
+# Android SDK (Fire TV emulator). With XDG_CONFIG_HOME set, the SDK
+# command-line tools keep AVDs in $XDG_CONFIG_HOME/.android, while the
+# emulator, adb and ftv use ~/.android. Pin the tools to ~/.android.
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_USER_HOME="$HOME/.android"
+
 # Newest Kepler kntools SDK, if any (N: no error if absent, On: name descending)
 _kntools=($HOME/.kepler/kntools/sdk/*(N/On[1]))
 
@@ -37,6 +43,7 @@ path=(
     "$HOMEBREW_PREFIX/bin"
     "$HOMEBREW_PREFIX/sbin"
     $path
+    "$ANDROID_HOME/emulator"
     "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
     "$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 )
